@@ -12,6 +12,7 @@ import pickle
 import yfinance as yf
 import re
 from sklearn.preprocessing import MinMaxScaler
+from statsmodels.graphics.tsaplots import plot_acf
 
 
 ## Options 
@@ -129,6 +130,13 @@ plt.legend()
 
 plt.show()
 plt.close()
+#msft: strong growth in 2020 and 2021 until peaks in late 2021/early 2022 before a decreasing
+  #trend in 2022
+#aapl: similar pattern as msft except less growth in absolute or relative terms then a period
+  #of osciallation in 2022 before a decline to end the year
+#amzn: growth in first half of 2020 then stability for rest of year and through 2021 before
+  #a marked decline in 2022
+#goog: steady growth in 2020 and 2021 before a slower but steady decline in 2022
 
 
 ### Normalized stock prices over time
@@ -159,7 +167,7 @@ plt.show()
 plt.close()
 
 
-
+ 
 ### Volumes over time
 plt.plot(df.index, df.aapl_volume, label="Apple", color='skyblue')
 plt.plot(df.index, df.msft_volume, label="Microsoft", color='darkred')
@@ -176,24 +184,24 @@ plt.legend()
 
 plt.show()
 plt.close()
+#in order of descending volume: aapl, msft, goog, and amzn
+#aapl markedly more volume in first half of 2020 compared to rest of 2020-2022
+#the other three stocks had similar volumes over the study period
+#msft had more volatility in volme compared to amzn and goog
 
 
 ### Moving average
 #### Calculate moving average
+#isolate adj closing prices
 df_ac = df[t_adj_close]
 
-
-print("appl", "%s_day_MA" %(str(10)), sep="_")
-pd.DataFrame.rolling(df_ac['aapl_adj_close'],10).mean()
-
-
-# Plot out several moving averages
 #copy df
 df_ma = df_ac.copy()
 
 t_adj_close #list of adj close names from before
 
-ma_day = [10, 30, 50] #ma intervals
+ma_day = [10, 50] #ma intervals
+# ma_day = [10, 30, 50] #ma intervals
 
 #create adj closing prices
 for col in t_adj_close:
@@ -203,16 +211,13 @@ for col in t_adj_close:
     df_ma[col_name]=pd.DataFrame.rolling(df_ma[col],ma).mean()
 
 
-#### Plot moving average
+#### Plot moving average for Apple
 df_ma.head()
-
-
 
 plt.plot(df_ma.index, df_ma.aapl_adj_close, label="Daily adj closing price", linestyle='solid')
 plt.plot(df_ma.index, df_ma.aapl_10_day_MA, label="10-day", linestyle='dashed')
 plt.plot(df_ma.index, df_ma.aapl_30_day_MA, label="30-day", linestyle='dotted')
 plt.plot(df_ma.index, df_ma.aapl_50_day_MA, label="50-day", linestyle='dashdot')
-
 
 plt.xticks(ticks=xlabs, labels=xlabs)
 
@@ -226,83 +231,95 @@ plt.show()
 plt.close()
 
 
+#### Plot out several moving averages
 fig, axes = plt.subplots(2, 2)
+t_stock = ['aapl', 'msft', 'amzn', 'goog']
+xlabs2 = ['2020-01', '2021-01', '2022-01', '2023-01']
+n = 0
 
-axes[0, 0].plot(df_ma.index, df_ma.aapl_adj_close, label="Daily adj closing price", linestyle='solid')
-axes[0, 1].plot(df_ma.index, df_ma.msft_adj_close, label="Daily adj closing price", linestyle='solid')
-axes[1, 0].plot(df_ma.index, df_ma.amzn_adj_close, label="Daily adj closing price", linestyle='solid')
-axes[1, 1].plot(df_ma.index, df_ma.goog_adj_close, label="Daily adj closing price", linestyle='solid')
+for i in range(0, 2):
+  for j in range(0, 2):
+    col = t_adj_close[n]
+    stock = t_stock[n]
+    col2 = stock + "_10_day_MA"
+    col3 = stock + "_30_day_MA"
+    col4 = stock + "_50_day_MA"
+    
+    axes[i, j].plot(df_ma.index, df_ma[col], label="Adj closing \nprice", linestyle='solid')
+    axes[i, j].plot(df_ma.index, df_ma[col2], label="10-day MA", linestyle='dashed')
+    # axes[i, j].plot(df_ma.index, df_ma[col3], label="30-day MA", linestyle='dotted')
+    axes[i, j].plot(df_ma.index, df_ma[col4], label="50-day MA", linestyle='dashdot')
 
-# plt.plot(df_ma.index, df_ma.aapl_10_day_MA, label="10-day", linestyle='dashed')
-# plt.plot(df_ma.index, df_ma.aapl_30_day_MA, label="30-day", linestyle='dotted')
-# plt.plot(df_ma.index, df_ma.aapl_50_day_MA, label="50-day", linestyle='dashdot')
-
-axes[0, 0].set_xticks(ticks=xlabs, labels=xlabs)
-axes[0, 1].set_xticks(ticks=xlabs, labels=xlabs)
-axes[1, 0].set_xticks(ticks=xlabs, labels=xlabs)
-axes[1, 1].set_xticks(ticks=xlabs, labels=xlabs)
-
-axes[0, 0].set_title('aapl')
-axes[0, 1].set_title('msft')
-axes[1, 0].set_title('amzn')
-axes[1, 1].set_title('goog')
-
-fig.suptitle("Stock adjusted closing prices with moving averages from 2020-2022")
+    axes[i, j].set_xticks(ticks=xlabs2, labels=xlabs2)
+    axes[i, j].set_title(stock)
+  
+    n = n + 1
+      
+fig.suptitle("Adjusted closing prices with moving averages from 2020-2022")
 fig.supxlabel('Date')
 fig.supylabel('Adjusted closing price ($)')
 
-fig.legend(labels, loc='lower right', bbox_to_anchor=(1,-0.1))
-plt.tight_layout()
+axes.flatten()[-2].legend(loc='right', bbox_to_anchor=(3, 1), ncol=1)
+
+fig.subplots_adjust(left=0.1, bottom=None, right=0.75, top=None, wspace=0.2, hspace=0.3)
+
 plt.show()
 plt.close()
-
-
-
-
-
-# First create some toy data:
-x = np.linspace(0, 2*np.pi, 400)
-y = np.sin(x**2)
-
-# Create just a figure and only one subplot
-fig, ax = plt.subplots()
-ax.plot(x, y)
-ax.set_title('Simple plot')
-
-# Create two subplots and unpack the output array immediately
-f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
-ax1.plot(x, y)
-ax1.set_title('Sharing Y axis')
-ax2.scatter(x, y)
-
-# Create four polar Axes and access them through the returned array
-fig, axs = plt.subplots(2, 2, subplot_kw=dict(projection="polar"))
-axs[0, 0].plot(x, y)
-axs[1, 1].scatter(x, y)
-
-# Share a X axis with each column of subplots
-plt.subplots(2, 2, sharex='col')
-
-# Share a Y axis with each row of subplots
-plt.subplots(2, 2, sharey='row')
-
-# Share both X and Y axes with all subplots
-plt.subplots(2, 2, sharex='all', sharey='all')
-
-# Note that this is the same as
-plt.subplots(2, 2, sharex=True, sharey=True)
-
-# Create figure number 10 with a single subplot
-# and clears it if it already exists.
-fig, ax = plt.subplots(num=10, clear=True)
-
+#msft and goog: clear longer term patterns, which are captured by the 50-day MA plots
+#aapl and amzn: the 50-day MA plots captured some of the volatility in the daily adj closing
+  #prices
 
 
 ### Create boxplots of adjusted stock prices
+df_ac_box = df_ac.copy()
+df_ac_box.columns = t_stock
+df_ac_box.plot(kind='box', ylim=(0, 400), xlabel="Stock", ylabel="Adjusted closing stock price ($)")
 
+plt.show()
+plt.close()
+#msft adj stock prices are significantly greater than the other three
+#only aapl contained outliers during this time period for these four stocks
 
 
 ### Autocorrelation
+#aapl
+plt.figure(figsize=(12, 6))
+plot_acf(df_ac['aapl_adj_close'], lags=50, ax=plt.gca())
+plt.xlabel('Lag')
+plt.ylabel('Autocorrelation')
+plt.title('Autocorrelation Plot')
+plt.show()
+plt.close()
+#y-axis = degree of autocorrelation
+#x-axis = degree of lag; lag = 0 is unimportant because value is perfectly correlated with itself
+#this plot shows the degree of correlation between time t and time t-0 -- t-50
+#blue region = CI (which defaults at 95%)
+
+#all four stocks
+fig, axes = plt.subplots(2, 2)
+
+t_stock = ['aapl', 'msft', 'amzn', 'goog']
+n = 0
+
+for i in range(0, 2):
+  for j in range(0, 2):
+    col = t_adj_close[n]
+    stock = t_stock[n]
+    
+    plot_acf(df_ac[col], ax=axes[i, j])
+    axes[i, j].set_title(stock)
+    
+    n = n + 1
+
+fig.subplots_adjust(top=1)
+fig.suptitle("Autocorrelation of adjusted closing prices of \ntech stocks from 2020-2022")
+fig.supxlabel('Lag')
+fig.supylabel('Autocorrelation')
+    
+plt.tight_layout()
+plt.show()
+plt.close()
+#strongest to weakest autocorrelation: goog, msft, aapl, amzn
 
 
 
@@ -311,14 +328,102 @@ fig, ax = plt.subplots(num=10, clear=True)
 #risk = standard deviation of those returns
 #calcs can be done for shorter time periods: daily, weekly, or even monthly
 
-#1) calculate daily percent change in closing prices for each stock 
+df_ret = df_ac.copy()
+
+#1) calculate daily percent change in closing prices for each stock
+for i in range(4):
+  col = t_adj_close[i]
+  stock = t_stock[i]
+  
+  col_name = stock + "_return"
+  df_ret[col_name] = df[col].pct_change().dropna().mul(100)
+  
+df_ret = df_ret.iloc[:, 4:] #retain return columns only
+df_ret['year'] = pd.DatetimeIndex(df.index).year #extracts & adds year col
+
+df_risk = df_ret.copy()
+
 #2) mean of #1 values (returns) & multiplied by 252 (= # of trading days in a year) = avg annual returns
+df_ret_yr = df_ret.groupby('year').mean() * 252 #avg annual returns
+df_ret_yr.columns = t_stock
+
+df_ret_long = pd.melt(df_ret_yr.reset_index(), var_name='stock', value_name='return', id_vars='year')
+
+
 #3) annual risk = std dev multiplied by the square root of the number of trading days in a year
+df_risk_yr = df_risk.groupby('year').std() * np.sqrt(252)
+df_risk_yr.columns = t_stock
+
+df_risk_long = pd.melt(df_risk_yr.reset_index(), var_name='stock', value_name='risk', id_vars='year')
+
+#4) merge them together
+df_rr = df_ret_long.merge(df_risk_long, how='inner', on=['year', 'stock'])
+
+#5) plot annual risk vs return
+#2020
+df_rr_2020 = df_rr[df_rr['year']==2020]
+
+plt.scatter(df_rr_2020["risk"], df_rr_2020["return"])
+for i, row in df_rr_2020.iterrows():
+    plt.annotate(row['stock'], (row['risk']+0.002, row['return']+0.01), fontsize=9, ha='right')
+
+plt.show()
+plt.close()
+
+
+#iterate over each year
+fig, axes = plt.subplots(2, 2)
+
+n = 0
+t_year = [2020, 2021, 2022]
+
+when n <= 2:
+  for i in [0, 1]:
+    for j in [0, 1]:
+      year = t_year[n]
+      df_rr_yr = df_rr[df_rr['year']==year]
+      
+      axes[i,j].scatter(df_rr_yr["risk"], df_rr_yr["return"])
+      
+      for k, row in df_rr_yr.iterrows():
+        axes[i,j].annotate(row['stock'], (row['risk']+0.002, row['return']+0.01), fontsize=9, ha='right')
+      
+      axes[i,j].set_title(year)
+    
+      n = n + 1
+      
+axes[1,1].remove()
+
+fig.suptitle("Risk-return plots of four tech stocks from 2020-2022")
+fig.supxlabel('Risk')
+fig.supylabel('Return')
+
+plt.tight_layout()
+plt.show()
+plt.close()
+#order of decreasing return/risk
+#2020: amzn, aapl (highest ret), msft, and goog
+#2021: msft & goog highest ratio, followed by aapl and finally amzn
+#2022: all negative returns
 
 
 ## Correlation of returns
-#calculate correlations of the returns calculated in previous section from the different stocks
+#show returns correlations via heatmap/correlation matrix
+df_ret_no_yr = df_ret.drop('year', axis=1)
+df_ret_no_yr.columns = t_stock
 
+corr_matrix = df_ret_no_yr.corr()
+
+plt.figure(figsize=(8, 6))
+
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, center=0)
+
+plt.title('Correlation of Tech Stock Returns')
+plt.show()
+plt.close()
+#strong corrs (r > 0.8): aapl-msft, msft-goog
+#med corrs (0.7 <= r <= 0.8): aapl-goog, msft-amzn
+#weak corrs (r < 0.7): aapl-amzn, amzn-goog
 
 
 ## Calculate basic stats (mean, median, st dev)
