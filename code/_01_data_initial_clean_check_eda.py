@@ -1,7 +1,7 @@
 # This script does initial data cleaning/wrangling and performs EDA
 
 
-# Load Libraries, Set Options, and Change WD========================================================
+# Load Libraries====================================================================================
 ## Load libraries
 import pandas as pd
 import inflection
@@ -13,22 +13,12 @@ import yfinance as yf
 import re
 from sklearn.preprocessing import MinMaxScaler
 from statsmodels.graphics.tsaplots import plot_acf
-
-
-## Options 
-# pd.options.display.max_columns = 20
-# pd.options.display.max_rows = 20
-# pd.options.display.max_colwidth = 80
-# np.set_printoptions(precision=4, suppress=True)
+from pathlib import Path
+import os
 
 
 
-# Source Functions and Data=========================================================================
-## Functions
-# from _00_helper_fns import make_grouped_barplot
-
-
-## Data
+# Source Data=======================================================================================
 df_aapl0 = yf.download('AAPL', start='2020-01-01', end='2023-01-01')
 df_msft0 = yf.download('MSFT', start='2020-01-01', end='2023-01-01')
 df_amzn0 = yf.download('AMZN', start='2020-01-01', end='2023-01-01')
@@ -281,48 +271,6 @@ plt.close()
 #only aapl contained outliers during this time period for these four stocks
 
 
-### Autocorrelation
-#aapl
-plt.figure(figsize=(12, 6))
-plot_acf(df_ac['aapl_adj_close'], lags=50, ax=plt.gca())
-plt.xlabel('Lag')
-plt.ylabel('Autocorrelation')
-plt.title('Autocorrelation Plot')
-plt.show()
-plt.close()
-#y-axis = degree of autocorrelation
-#x-axis = degree of lag; lag = 0 is unimportant because value is perfectly correlated with itself
-#this plot shows the degree of correlation between time t and time t-0 -- t-50
-#blue region = CI (which defaults at 95%)
-
-#all four stocks
-fig, axes = plt.subplots(2, 2)
-
-t_stock = ['aapl', 'msft', 'amzn', 'goog']
-n = 0
-
-for i in range(0, 2):
-  for j in range(0, 2):
-    col = t_adj_close[n]
-    stock = t_stock[n]
-    
-    plot_acf(df_ac[col], ax=axes[i, j])
-    axes[i, j].set_title(stock)
-    
-    n = n + 1
-
-fig.subplots_adjust(top=1)
-fig.suptitle("Autocorrelation of adjusted closing prices of \ntech stocks from 2020-2022")
-fig.supxlabel('Lag')
-fig.supylabel('Autocorrelation')
-    
-plt.tight_layout()
-plt.show()
-plt.close()
-#strongest to weakest autocorrelation: goog, msft, aapl, amzn
-
-
-
 ### Risk and return
 #return = % change in closing price of the stock over one year
 #risk = standard deviation of those returns
@@ -470,11 +418,16 @@ df[goog_cols].groupby(['year', 'month']).agg(fns)
 
 
 
+# Write Data to File================================================================================
+#save in pickle format to retain data types
 
+#change wd
+os.chdir(str(Path.cwd()) + '/data') #change wd
+Path.cwd() #returns new wd
 
-
-
-
-
+#save file
+# afile = open('data_initial_clean.pkl', 'wb')
+# pickle.dump(df, afile)
+# afile.close
 
 
