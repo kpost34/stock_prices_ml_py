@@ -12,17 +12,22 @@ import pickle
 import yfinance as yf
 import re
 from sklearn.preprocessing import MinMaxScaler
-from statsmodels.graphics.tsaplots import plot_acf
 from pathlib import Path
 import os
 
 
 
 # Source Data=======================================================================================
-df_aapl0 = yf.download('AAPL', start='2020-01-01', end='2023-01-01')
-df_msft0 = yf.download('MSFT', start='2020-01-01', end='2023-01-01')
-df_amzn0 = yf.download('AMZN', start='2020-01-01', end='2023-01-01')
-df_goog0 = yf.download('GOOG', start='2020-01-01', end='2023-01-01')
+# df_aapl0 = yf.download('AAPL', start='2020-01-01', end='2023-01-01')
+# df_msft0 = yf.download('MSFT', start='2020-01-01', end='2023-01-01')
+# df_amzn0 = yf.download('AMZN', start='2020-01-01', end='2023-01-01')
+# df_goog0 = yf.download('GOOG', start='2020-01-01', end='2023-01-01')
+
+
+df_aapl0 = yf.download('AAPL', start='2016-01-01', end='2019-01-01')
+df_msft0 = yf.download('MSFT', start='2016-01-01', end='2019-01-01')
+df_amzn0 = yf.download('AMZN', start='2016-01-01', end='2019-01-01')
+df_goog0 = yf.download('GOOG', start='2016-01-01', end='2019-01-01')
 
 
 
@@ -47,7 +52,7 @@ df_amzn.columns = ["amzn_" + x for x in cols_raw if not str(x) == "nan"]
 df_goog.columns = ["goog_" + x for x in cols_raw if not str(x) == "nan"]
 
 
-### Combine DFs
+### Combine DFs 
 df = pd.concat([df_aapl, df_msft, df_amzn, df_goog], axis=1)
 
 
@@ -97,12 +102,13 @@ df[(df['goog_adj_close'] >= s_ub[s_ub.index=='goog_adj_close'].item())|
      (df['goog_adj_close'] <= s_lb[s_lb.index=='goog_adj_close'].item())].goog_adj_close
 #none
 
-
+#new data: none for all
 
 # Exploratory Data Analysis=========================================================================
 ## Plots
 ### Stock prices over time
-xlabs = ["2020-01", "2020-07", "2021-01", "2021-07", "2022-01", "2022-07", "2023-01"]
+xlabs = ["2016-01", "2016-07", "2017-01", "2017-07", "2018-01", "2018-07", "2019-01"]
+# xlabs = ["2020-01", "2020-07", "2021-01", "2021-07", "2022-01", "2022-07", "2023-01"]
 
 plt.plot(df.index, df.msft_adj_close, label="Microsoft", color='darkred')
 plt.plot(df.index, df.aapl_adj_close, label="Apple", color='skyblue')
@@ -157,7 +163,6 @@ plt.show()
 plt.close()
 
 
- 
 ### Volumes over time
 plt.plot(df.index, df.aapl_volume, label="Apple", color='skyblue')
 plt.plot(df.index, df.msft_volume, label="Microsoft", color='darkred')
@@ -224,7 +229,8 @@ plt.close()
 #### Plot out several moving averages
 fig, axes = plt.subplots(2, 2)
 t_stock = ['aapl', 'msft', 'amzn', 'goog']
-xlabs2 = ['2020-01', '2021-01', '2022-01', '2023-01']
+xlabs2 = ['2016-01', '2017-01', '2018-01', '2019-01']
+# xlabs2 = ['2020-01', '2021-01', '2022-01', '2023-01']
 n = 0
 
 for i in range(0, 2):
@@ -308,11 +314,16 @@ df_risk_long = pd.melt(df_risk_yr.reset_index(), var_name='stock', value_name='r
 df_rr = df_ret_long.merge(df_risk_long, how='inner', on=['year', 'stock'])
 
 #5) plot annual risk vs return
-#2020
-df_rr_2020 = df_rr[df_rr['year']==2020]
+#2016
+df_rr_2016 = df_rr[df_rr['year']==2016]
 
-plt.scatter(df_rr_2020["risk"], df_rr_2020["return"])
-for i, row in df_rr_2020.iterrows():
+#2020
+# df_rr_2020 = df_rr[df_rr['year']==2020]
+
+plt.scatter(df_rr_2016["risk"], df_rr_2016["return"])
+# plt.scatter(df_rr_2020["risk"], df_rr_2020["return"])
+for i, row in df_rr_2016.iterrows():
+# for i, row in df_rr_2020.iterrows():
     plt.annotate(row['stock'], (row['risk']+0.002, row['return']+0.01), fontsize=9, ha='right')
 
 plt.show()
@@ -323,7 +334,8 @@ plt.close()
 fig, axes = plt.subplots(2, 2)
 
 n = 0
-t_year = [2020, 2021, 2022]
+t_year = [2016, 2017, 2018]
+# t_year = [2020, 2021, 2022]
 
 when n <= 2:
   for i in [0, 1]:
