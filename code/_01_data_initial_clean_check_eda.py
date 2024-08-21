@@ -114,7 +114,7 @@ plt.xticks(ticks=xlabs, labels=xlabs)
 
 plt.title("Tech stock adjusted closing prices 2020-2022")
 plt.xlabel("Date")
-plt.ylabel("Adjust closing price ($)")
+plt.ylabel("Adjusted closing price ($)")
 
 plt.legend()
 
@@ -122,6 +122,29 @@ plt.show()
 plt.close()
 #all four stocks: steady growth in 2016; increasing growth in 2017; 2017 growth continues into 
   #first half of 2018; and decline in second half of 2018
+
+
+
+### Log-transformed prices over time
+xlabs = ["2016-01", "2016-07", "2017-01", "2017-07", "2018-01", "2018-07", "2019-01"]
+
+plt.plot(df.index, np.log(df.msft_adj_close), label="Microsoft", color='darkred')
+plt.plot(df.index, np.log(df.aapl_adj_close), label="Apple", color='skyblue')
+plt.plot(df.index, np.log(df.amzn_adj_close), label="Amazon", color='purple')
+plt.plot(df.index, np.log(df.goog_adj_close), label="Google", color='green')
+
+plt.ylim(0, 5)
+plt.xticks(ticks=xlabs, labels=xlabs)
+
+plt.title("Tech stock adjusted closing prices 2020-2022")
+plt.xlabel("Date")
+plt.ylabel("Log-adjusted closing price ($)")
+
+plt.legend()
+
+plt.show()
+plt.close()
+#smooths out the variance in the data
 
 
 ### Normalized stock prices over time
