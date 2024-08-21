@@ -18,12 +18,6 @@ import os
 
 
 # Source Data=======================================================================================
-# df_aapl0 = yf.download('AAPL', start='2020-01-01', end='2023-01-01')
-# df_msft0 = yf.download('MSFT', start='2020-01-01', end='2023-01-01')
-# df_amzn0 = yf.download('AMZN', start='2020-01-01', end='2023-01-01')
-# df_goog0 = yf.download('GOOG', start='2020-01-01', end='2023-01-01')
-
-
 df_aapl0 = yf.download('AAPL', start='2016-01-01', end='2019-01-01')
 df_msft0 = yf.download('MSFT', start='2016-01-01', end='2019-01-01')
 df_amzn0 = yf.download('AMZN', start='2016-01-01', end='2019-01-01')
@@ -85,7 +79,7 @@ s_lb = s_q1 - 1.5 * s_iqr
 #Apple
 df[(df['aapl_adj_close'] >= s_ub[s_ub.index=='aapl_adj_close'].item())|
      (df['aapl_adj_close'] <= s_lb[s_lb.index=='aapl_adj_close'].item())].aapl_adj_close
-#7 values, all low and in March/April 2020
+#none
 
 #MS
 df[(df['msft_adj_close'] >= s_ub[s_ub.index=='msft_adj_close'].item())|
@@ -101,21 +95,21 @@ df[(df['amzn_adj_close'] >= s_ub[s_ub.index=='amzn_adj_close'].item())|
 df[(df['goog_adj_close'] >= s_ub[s_ub.index=='goog_adj_close'].item())|
      (df['goog_adj_close'] <= s_lb[s_lb.index=='goog_adj_close'].item())].goog_adj_close
 #none
+#none for all four stocks
 
-#new data: none for all
+
 
 # Exploratory Data Analysis=========================================================================
 ## Plots
 ### Stock prices over time
 xlabs = ["2016-01", "2016-07", "2017-01", "2017-07", "2018-01", "2018-07", "2019-01"]
-# xlabs = ["2020-01", "2020-07", "2021-01", "2021-07", "2022-01", "2022-07", "2023-01"]
 
 plt.plot(df.index, df.msft_adj_close, label="Microsoft", color='darkred')
 plt.plot(df.index, df.aapl_adj_close, label="Apple", color='skyblue')
 plt.plot(df.index, df.amzn_adj_close, label="Amazon", color='purple')
 plt.plot(df.index, df.goog_adj_close, label="Google", color='green')
 
-plt.ylim(0, 400)
+plt.ylim(0, 125)
 plt.xticks(ticks=xlabs, labels=xlabs)
 
 plt.title("Tech stock adjusted closing prices 2020-2022")
@@ -126,13 +120,8 @@ plt.legend()
 
 plt.show()
 plt.close()
-#msft: strong growth in 2020 and 2021 until peaks in late 2021/early 2022 before a decreasing
-  #trend in 2022
-#aapl: similar pattern as msft except less growth in absolute or relative terms then a period
-  #of osciallation in 2022 before a decline to end the year
-#amzn: growth in first half of 2020 then stability for rest of year and through 2021 before
-  #a marked decline in 2022
-#goog: steady growth in 2020 and 2021 before a slower but steady decline in 2022
+#all four stocks: steady growth in 2016; increasing growth in 2017; 2017 growth continues into 
+  #first half of 2018; and decline in second half of 2018
 
 
 ### Normalized stock prices over time
@@ -161,17 +150,19 @@ plt.legend()
 
 plt.show()
 plt.close()
+#shows the same pattern as non-normalized data; it's just on the same scale
 
 
 ### Volumes over time
 plt.plot(df.index, df.aapl_volume, label="Apple", color='skyblue')
-plt.plot(df.index, df.msft_volume, label="Microsoft", color='darkred')
 plt.plot(df.index, df.amzn_volume, label="Amazon", color='purple')
 plt.plot(df.index, df.goog_volume, label="Google", color='green')
+plt.plot(df.index, df.msft_volume, label="Microsoft", color='darkred')
+
 
 plt.xticks(ticks=xlabs, labels=xlabs)
 
-plt.title("Tech stock trading volumes 2020-2022")
+plt.title("Tech stock trading volumes 2016-2018")
 plt.xlabel("Date")
 plt.ylabel("Volume")
 
@@ -179,10 +170,10 @@ plt.legend()
 
 plt.show()
 plt.close()
-#in order of descending volume: aapl, msft, goog, and amzn
-#aapl markedly more volume in first half of 2020 compared to rest of 2020-2022
-#the other three stocks had similar volumes over the study period
-#msft had more volatility in volme compared to amzn and goog
+#in order of descending volume: aapl, amzn, goog, and msft
+#the general pattern is that aapl and amzn had higher volumes than goog and msft throughout the
+  #trading period
+
 
 
 ### Moving average
@@ -210,13 +201,12 @@ for col in t_adj_close:
 df_ma.head()
 
 plt.plot(df_ma.index, df_ma.aapl_adj_close, label="Daily adj closing price", linestyle='solid')
-plt.plot(df_ma.index, df_ma.aapl_10_day_MA, label="10-day", linestyle='dashed')
-plt.plot(df_ma.index, df_ma.aapl_30_day_MA, label="30-day", linestyle='dotted')
-plt.plot(df_ma.index, df_ma.aapl_50_day_MA, label="50-day", linestyle='dashdot')
+plt.plot(df_ma.index, df_ma.aapl_10_day_MA, label="10-day moving average", linestyle='dashed')
+plt.plot(df_ma.index, df_ma.aapl_50_day_MA, label="50-day moving average", linestyle='dashdot')
 
 plt.xticks(ticks=xlabs, labels=xlabs)
 
-plt.title("Apple stock adjusted closing prices with moving averages from 2020-2022")
+plt.title("Apple stock adjusted closing prices with moving averages from 2016-2018")
 plt.xlabel("Date")
 plt.ylabel("Adjusted closing price ($)")
 
@@ -230,7 +220,7 @@ plt.close()
 fig, axes = plt.subplots(2, 2)
 t_stock = ['aapl', 'msft', 'amzn', 'goog']
 xlabs2 = ['2016-01', '2017-01', '2018-01', '2019-01']
-# xlabs2 = ['2020-01', '2021-01', '2022-01', '2023-01']
+
 n = 0
 
 for i in range(0, 2):
@@ -243,7 +233,6 @@ for i in range(0, 2):
     
     axes[i, j].plot(df_ma.index, df_ma[col], label="Adj closing \nprice", linestyle='solid')
     axes[i, j].plot(df_ma.index, df_ma[col2], label="10-day MA", linestyle='dashed')
-    # axes[i, j].plot(df_ma.index, df_ma[col3], label="30-day MA", linestyle='dotted')
     axes[i, j].plot(df_ma.index, df_ma[col4], label="50-day MA", linestyle='dashdot')
 
     axes[i, j].set_xticks(ticks=xlabs2, labels=xlabs2)
@@ -251,7 +240,7 @@ for i in range(0, 2):
   
     n = n + 1
       
-fig.suptitle("Adjusted closing prices with moving averages from 2020-2022")
+fig.suptitle("Adjusted closing prices with moving averages from 2016-2018")
 fig.supxlabel('Date')
 fig.supylabel('Adjusted closing price ($)')
 
@@ -261,20 +250,21 @@ fig.subplots_adjust(left=0.1, bottom=None, right=0.75, top=None, wspace=0.2, hsp
 
 plt.show()
 plt.close()
-#msft and goog: clear longer term patterns, which are captured by the 50-day MA plots
-#aapl and amzn: the 50-day MA plots captured some of the volatility in the daily adj closing
-  #prices
+#aapl and goog appear to have the largest variances, so 50-d moving average is the most helpful
+  #for these two stocks
 
 
 ### Create boxplots of adjusted stock prices
 df_ac_box = df_ac.copy()
 df_ac_box.columns = t_stock
-df_ac_box.plot(kind='box', ylim=(0, 400), xlabel="Stock", ylabel="Adjusted closing stock price ($)")
+df_ac_box.plot(kind='box', ylim=(0, 125), xlabel="Stock", ylabel="Adjusted closing stock price ($)")
 
 plt.show()
 plt.close()
-#msft adj stock prices are significantly greater than the other three
-#only aapl contained outliers during this time period for these four stocks
+#msft adj closing prices are significantly greater than the other three
+#no outliers
+#aapl and goog have smaller IQRs than msft and amzn
+
 
 
 ### Risk and return
@@ -317,14 +307,14 @@ df_rr = df_ret_long.merge(df_risk_long, how='inner', on=['year', 'stock'])
 #2016
 df_rr_2016 = df_rr[df_rr['year']==2016]
 
-#2020
-# df_rr_2020 = df_rr[df_rr['year']==2020]
-
 plt.scatter(df_rr_2016["risk"], df_rr_2016["return"])
-# plt.scatter(df_rr_2020["risk"], df_rr_2020["return"])
 for i, row in df_rr_2016.iterrows():
-# for i, row in df_rr_2020.iterrows():
-    plt.annotate(row['stock'], (row['risk']+0.002, row['return']+0.01), fontsize=9, ha='right')
+    plt.annotate(row['stock'], (row['risk']+0.001, row['return']+0.03), fontsize=11, ha='right')
+
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
+plt.xlabel("risk", fontsize=14)
+plt.ylabel("return", fontsize=14)
 
 plt.show()
 plt.close()
@@ -335,7 +325,6 @@ fig, axes = plt.subplots(2, 2)
 
 n = 0
 t_year = [2016, 2017, 2018]
-# t_year = [2020, 2021, 2022]
 
 when n <= 2:
   for i in [0, 1]:
@@ -346,7 +335,7 @@ when n <= 2:
       axes[i,j].scatter(df_rr_yr["risk"], df_rr_yr["return"])
       
       for k, row in df_rr_yr.iterrows():
-        axes[i,j].annotate(row['stock'], (row['risk']+0.002, row['return']+0.01), fontsize=9, ha='right')
+        axes[i,j].annotate(row['stock'], (row['risk']+0.001, row['return']+0.03), fontsize=11, ha='right')
       
       axes[i,j].set_title(year)
     
@@ -355,16 +344,16 @@ when n <= 2:
 axes[1,1].remove()
 
 fig.suptitle("Risk-return plots of four tech stocks from 2020-2022")
-fig.supxlabel('Risk')
-fig.supylabel('Return')
+fig.supxlabel('Risk', fontsize=14)
+fig.supylabel('Return', fontsize=14)
 
 plt.tight_layout()
 plt.show()
 plt.close()
 #order of decreasing return/risk
-#2020: amzn, aapl (highest ret), msft, and goog
-#2021: msft & goog highest ratio, followed by aapl and finally amzn
-#2022: all negative returns
+#2016: msft, amzn, aapl, goog
+#2017: msft, aapl, amzn, goog
+#2018: amzn, msft, goog, aapl (neg)
 
 
 ## Correlation of returns
@@ -381,9 +370,9 @@ sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, center=0)
 plt.title('Correlation of Tech Stock Returns')
 plt.show()
 plt.close()
-#strong corrs (r > 0.8): aapl-msft, msft-goog
-#med corrs (0.7 <= r <= 0.8): aapl-goog, msft-amzn
-#weak corrs (r < 0.7): aapl-amzn, amzn-goog
+#strong corrs (r > 0.8): none
+#med corrs (0.5 <= r <= 0.8): all pairs (range from 0.54-0.75)
+#weak corrs (r < 0.5): none
 
 
 ## Calculate basic stats (mean, median, st dev)
@@ -398,6 +387,7 @@ df['month'] = pd.DatetimeIndex(df.index).month
 
 ### Summary stats by year
 df.groupby('year').describe() #everything
+
 
 #### By stock and year and subset of functions
 fns = ['count', 'min', 'mean', 'median', 'max', 'std']
