@@ -6,32 +6,24 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-from pathlib import Path
 import os
 import pickle
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.arima.model import ARIMA
-# from sklearn.preprocessing import PowerTransformer, StandardScaler
 from scipy import stats
 import yfinance as yf
 
 
 ## Data import
 #change wd
-os.chdir(str(Path.cwd()) + '/data') #change wd
-Path.cwd()
+root = '/Users/keithpost/Documents/Python/Python projects/stock_prices_ml_py/'
+os.chdir(root + 'data') #change wd
 
 #import training data
 file = open('data_initial_clean.pkl', 'rb')
 df0 = pickle.load(file)
 
-#import test data
-df_aapl_test = yf.download('AAPL', start='2019-01-01', end='2020-01-01')[['Adj Close']].rename(columns={"Adj Close": "aapl_adj_close"})
-df_msft_test = yf.download('MSFT', start='2019-01-01', end='2020-01-01')[['Adj Close']].rename(columns={"Adj Close": "aapl_adj_close"})
-df_goog_test = yf.download('GOOG', start='2019-01-01', end='2020-01-01')[['Adj Close']].rename(columns={"Adj Close": "aapl_adj_close"})
-df_amzn_test = yf.download('AMZN', start='2019-01-01', end='2020-01-01')[['Adj Close']].rename(columns={"Adj Close": "aapl_adj_close"})
 
 
 # Data Transformation===============================================================================
@@ -454,276 +446,33 @@ plt.close()
 
 
 
-# Model Forecasting=================================================================================
-## aapl--------------------
-### Get forecasted values
-forecast_aapl = model_aapl_fit.get_forecast(steps=21)
+# Write Data to File================================================================================
+#combine models into dictionary
+dict_models = {
+  'aapl': model_aapl_fit,
+  'msft': model_msft_fit,
+  'amzn': model_amzn_fit,
+  'goog': model_amzn_fit
+}
 
-forecast_aapl_mean = forecast_aapl.predicted_mean
+#save file
+# afile = open('fitted_models.pkl', 'wb')
+# pickle.dump(dict_models, afile)
+# afile.close()
 
-forecast_aapl_ci = forecast_aapl.conf_int()
 
-forecast_aapl_sum = forecast_aapl.summary_frame()
-forecast_aapl_sum.index = df_aapl_log.iloc[:21].index
 
-forecast_aapl_vals = model_aapl_fit.fittedvalues.iloc[0:20]
 
 
-### Undo differencing and log transform
-#get last known log-transformed value
-last_log_aapl_value = np.log(df0['aapl_adj_close'].iloc[-1])
 
-#undo differencing by calculating actual forecasted log-transformed values
-aapl_log_forecast = forecast_aapl_sum.cumsum() + last_log_aapl_value
 
-#undo log transform
-aapl_forecast_value = np.exp(aapl_log_forecast)
 
 
-### Actual test values
-df_aapl_test = yf.download('AAPL', start='2019-01-01', end='2020-01-01')[['Adj Close']].rename(columns={"Adj Close": "aapl_adj_close"})
 
 
-### Combine actual and forecasted values
-pd.concat([aapl_forecast_value, df_aapl_test], axis=1).iloc[0:21,]
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Data Transformation===============================================================================
-#differencing yielded non-normality and non-constant variances for all four stocks, so a
-  #transformation is necessary
-
-# Yeo-Johnson 
-## Apply transformation
-ac_diff_yj = power_transform(df_ac_diff,
-                             method='yeo-johnson')
-df_ac_diff_yj = pd.DataFrame(ac_diff_yj,
-                             columns=t_stock)
-df_ac_diff_yj.index = df_ac_diff.index
-                             
-
-## Fit model
-#aapl
-model_ar_yj_aapl = ARIMA(df_ac_diff_yj['aapl'], order=(p, d, q))
-model_ar_yj_aapl_fit = model_ar_yj_aapl.fit()
-print(model_ar_yj_aapl_fit.summary())
-#negligible improvement in normality and constant variance
-
-
-
-# Box-Cox 
-## Apply transformation
-### Find constant
-constant = df_ac_diff.apply(min).min()*-1
-constant = math.ceil(constant)      
-
-
-### Add constant to data
-df_ac_diff_c = df_ac_diff.add(constant)
-
-
-### Apply Box-Cox transform
-ac_diff_bc, lambda_ = stats.boxcox(df_ac_diff_c['aapl_adj_close'])
-df_ac_diff_bc = pd.DataFrame(ac_diff_bc, index=df_ac_diff.index, columns=['aapl'])
-
-
-## Fit model
-model_ar_bc_aapl = ARIMA(df_ac_diff_bc['aapl'], order=(p, d, q))
-model_ar_bc_aapl_fit = model_ar_bc_aapl.fit()
-print(model_ar_bc_aapl_fit.summary())
-
-
-
-# Standardization
-## Apply tranformation
-ac_diff_std = StandardScaler().fit_transform(df_ac_diff)
-df_ac_diff_std = pd.DataFrame(ac_diff_std,
-                              columns=t_stock)
-
-## Fit model
-#aapl
-model_ar_std_aapl = ARIMA(df_ac_diff_std['aapl'], order=(p, d, q))
-model_ar_std_aapl_fit = model_ar_std_aapl.fit()
-print(model_ar_std_aapl_fit.summary())
-#again, no improvement in normality or constant variance
-
-
-
-# Log 
-## Apply transformation
-df_ac_diff_log = np.log(df_ac_diff_c['aapl_adj_close'])
-
-
-## Fit model
-#aapl
-model_ar_log_aapl = ARIMA(df_ac_diff_log, order=(p, d, q))
-model_ar_log_aapl_fit = model_ar_log_aapl.fit()
-print(model_ar_log_aapl_fit.summary())
-
-
-# Plot residuals to understand them in detail
-resid_aapl = model_ar_aapl_fit.resid
-
-plt.figure(figsize=(12, 6))
-plt.subplot(121)
-plt.plot(resid_aapl)
-plt.title('Residuals')
-plt.subplot(122)
-plt.acorr(resid_aapl, maxlags=40)
-plt.title('ACF of Residuals')
-plt.show()
-plt.close()
-
-# Breusch-Pagan test
-bp_test = het_breuschpagan(resid_aapl, model_ar_aapl_fit.model.exog)
-print("Breusch-Pagan test:", bp_test)
-
-# Normality test
-_, p_value = normal_ad(resid_aapl)
-print("Shapiro-Wilk p-value:", p_value)
-
-
-
-#given lack of improvement, double differencing applied
-
-
-
-# Double Differencing===============================================================================
-## Apply double differencing
-df_ac_diff2 = df_ac_diff.diff(axis=0).dropna()
-df_ac_diff2.apply(adfuller).iloc[1]
-#all 0s, so all series are stationary
-
-
-
-# Identify ARIMA Parameters (p, d,  q)==============================================================
-## Autocorrelation (ACF)
-fig, axes = plt.subplots(2, 2)
-
-t_stock = ['aapl', 'msft', 'amzn', 'goog']
-n = 0
-
-for i in range(0, 2):
-  for j in range(0, 2):
-    col = t_adj_close[n]
-    stock = t_stock[n]
-    
-    plot_acf(df_ac_diff2[col], ax=axes[i, j])
-    axes[i, j].set_title(stock)
-    
-    n = n + 1
-
-fig.subplots_adjust(top=1)
-fig.suptitle("Autocorrelation of adjusted closing prices of \ntech stocks from 2020-2022")
-fig.supxlabel('Lag')
-fig.supylabel('Autocorrelation')
-    
-plt.tight_layout()
-plt.show()
-plt.close()
-#q = 1 for all four stocks
-
-
-## Partial Autocorrelation Function (PACF)
-fig, axes = plt.subplots(2, 2)
-
-t_stock = ['aapl', 'msft', 'amzn', 'goog']
-n = 0
-
-for i in range(0, 2):
-  for j in range(0, 2):
-    col = t_adj_close[n]
-    stock = t_stock[n]
-    
-    plot_pacf(df_ac_diff2[col], ax=axes[i, j])
-    axes[i, j].set_title(stock)
-    
-    n = n + 1
-
-fig.subplots_adjust(top=1)
-fig.suptitle("Partial autocorrelation of adjusted closing prices of \ntech stocks from 2020-2022")
-fig.supxlabel('Lag')
-fig.supylabel('Partial autocorrelation')
-    
-plt.tight_layout()
-plt.show()
-plt.close()
-#p is the number of lags before spikes drop to zero/near-zero; this is 6
-
-#therefore, p = 6, q = 1, and d = 2 for all stocks
-
-
-# Fit ARIMA Model===================================================================================
-p = 6
-q = 1
-d = 2
-
-## aapl
-model2_ar_aapl = ARIMA(df_ac_diff2['aapl_adj_close'], order=(p, d, q))
-model2_ar_aapl_fit = model2_ar_aapl.fit()
-print(model2_ar_aapl_fit.summary())
-
-#same issues with non-normality and non-constant variance of residuals. Let's try a different model
-
-
-
-# Fit SARIMAX model=================================================================================
-p = 0
-d = 1
-q = 0
-P = 1
-D = 1
-Q = 1
-s = 252
-
-model_sar_aapl = SARIMAX(df_ac_diff['aapl_adj_close'],
-                         order=(p, d, q),
-                         seasonal_order=(P, D, Q, s))
-results = model_sar_aapl.fit()
-print(results.summary())
-
-
-                             
-
-
-# Feature Scaling===================================================================================
-t_adj_close = ['aapl_adj_close', 'msft_adj_close', 'amzn_adj_close', 'goog_adj_close']
-
-### Normalized stock prices over time
-#normalize data
-df_ac = df[t_adj_close]
-
-scaler = MinMaxScaler()
-df_scaled = pd.DataFrame(scaler.fit_transform(df_ac))
-df_scaled.columns = t_adj_close
-df_scaled.index = df.index
-df_scaled
 
 
 
