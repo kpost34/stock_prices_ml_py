@@ -69,31 +69,31 @@ print(df.duplicated().sum()) #no duplicate rows
 ## Outliers
 t_adj_close = ['aapl_adj_close', 'msft_adj_close', 'amzn_adj_close', 'goog_adj_close']
 
-s_q3 = df[t_adj_close].quantile(0.75)
-s_q1 = df[t_adj_close].quantile(0.25)
+ser_q3 = df[t_adj_close].quantile(0.75)
+ser_q1 = df[t_adj_close].quantile(0.25)
 
-s_iqr = s_q3 - s_q1
-s_ub = s_q3 + 1.5 * s_iqr
-s_lb = s_q1 - 1.5 * s_iqr
+ser_iqr = ser_q3 - ser_q1
+ser_ub = ser_q3 + 1.5 * ser_iqr
+ser_lb = ser_q1 - 1.5 * ser_iqr
 
 #Apple
-df[(df['aapl_adj_close'] >= s_ub[s_ub.index=='aapl_adj_close'].item())|
-     (df['aapl_adj_close'] <= s_lb[s_lb.index=='aapl_adj_close'].item())].aapl_adj_close
+df[(df['aapl_adj_close'] >= ser_ub[ser_ub.index=='aapl_adj_close'].item())|
+     (df['aapl_adj_close'] <= ser_lb[ser_lb.index=='aapl_adj_close'].item())].aapl_adj_close
 #none
 
 #MS
-df[(df['msft_adj_close'] >= s_ub[s_ub.index=='msft_adj_close'].item())|
-     (df['msft_adj_close'] <= s_lb[s_lb.index=='msft_adj_close'].item())].msft_adj_close
+df[(df['msft_adj_close'] >= ser_ub[ser_ub.index=='msft_adj_close'].item())|
+     (df['msft_adj_close'] <= ser_lb[ser_lb.index=='msft_adj_close'].item())].msft_adj_close
 #none
 
 #Amazon
-df[(df['amzn_adj_close'] >= s_ub[s_ub.index=='amzn_adj_close'].item())|
-     (df['amzn_adj_close'] <= s_lb[s_lb.index=='amzn_adj_close'].item())].amzn_adj_close
+df[(df['amzn_adj_close'] >= ser_ub[ser_ub.index=='amzn_adj_close'].item())|
+     (df['amzn_adj_close'] <= ser_lb[ser_lb.index=='amzn_adj_close'].item())].amzn_adj_close
 #none
 
 #Google
-df[(df['goog_adj_close'] >= s_ub[s_ub.index=='goog_adj_close'].item())|
-     (df['goog_adj_close'] <= s_lb[s_lb.index=='goog_adj_close'].item())].goog_adj_close
+df[(df['goog_adj_close'] >= ser_ub[ser_ub.index=='goog_adj_close'].item())|
+     (df['goog_adj_close'] <= ser_lb[ser_lb.index=='goog_adj_close'].item())].goog_adj_close
 #none
 #none for all four stocks
 
