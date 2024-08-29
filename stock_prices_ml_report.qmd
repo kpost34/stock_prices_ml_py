@@ -1,0 +1,156 @@
+---
+title: "Tech Stock Price Forecasting"
+author: "Keith Post"
+date: last-modified 
+execute:
+  echo: false
+  warning: false
+  message: false
+format: html
+jupyter: python3
+---
+
+```{python setup}
+
+%%capture
+
+#import packages
+from pathlib import Path
+import os
+import sys
+import matplotlib.pyplot as plt
+from IPython.display import display
+
+#change wd
+root = '/Users/keithpost/Documents/Python/Python projects/stock_prices_ml_py/'
+code_dir = Path(root) / 'code'
+os.chdir(code_dir)
+new_cwd = Path.cwd()
+sys.path.append(str(code_dir))
+
+#source other scripts
+from _00_helper_fns import calc_mae, calc_rmse
+import _01_data_initial_clean_check_eda as _01
+# import _02_prepare_fit_models as _02
+# import _03_model_forecast_diagnostics as _03
+
+```
+
+
+## Background
+
+<!-- INSERT BACKGROUND INFO -->
+
+
+## Exploratory Data Analysis
+
+The daily, adjusted closing stock prices were plotted for the four tech stocks--*aapl*, *msft*, 
+*amzn*, and *goog*--from 2016 through 2018.
+
+```{python fig1-adj closing prices over time}
+
+display(_01.plot_acp_time)
+plt.close()
+
+```
+
+**Figure 1:** Adjusted closing prices of four technology stocks from 2016-2018
+
+<br>
+
+The four stocks show a similar pattern in their adjusted closing prices over the time period observed (Fig. 1). There is steady growth in 2016 followed by greater growth the following year. In the first half of 2018, the growth continues but adjusted closing prices decline for all four stocks for the remainder of 2018.
+
+
+The stock prices were log-transformed to reduce variances to more clearly show their growth patterns.
+
+```{python fig2-log adj closing prices over time}
+
+display(_01.plot_log_acp_time)
+plt.close()
+
+```
+
+**Figure 2:** Log-transformed adjusted closing prices of four technology stocks from 2016-2018
+
+<br>
+
+Similar to the untransformed adjusted closing prices (Fig. 1), the log-transformed values exhibit the same pattern with growth from 2016 to mid-2018 before a decline (Fig. 2).
+
+
+The trading volume was also plotted over this time period for the four technology stocks.
+
+```{python fig3-volume over time}
+
+display(_01.plot_vol_time)
+plt.close()
+
+```
+
+**Figure 3:** Trading volume of the four technology stocks from 2016-2018
+
+<br>
+
+In general, *amzn* and *aapl* had greater trading volumes than *goog* and *msft* from 2016-2018 (Fig. 3). All four stocks had their highest volumes in early 2016 and late 2018.
+
+
+
+Distributions of data were visualized using boxplots. 
+
+```{python fig4-boxplot adj closing prices}
+
+display(_01.plot_box_acp)
+plt.close()
+
+```
+
+**Figure 4:** Boxplots of adjusted closing prices of four tech stocks from 2016-2018
+
+<br>
+
+*msft* has far greater median adjusted closing prices than the other three stocks, while *aapl* and *goog* have smaller inter-quartile ranges than *aapl* and *amzn* (Fig. 4). There are no outliers present for any tech stock.
+
+
+In addition to daily adjusted closing prices, the return, or daily percent change in these values, can be a helpful metric in understanding a stock. When combined with risk, or the standard deviation in returns, the relationship between these two metrics can be visualized. This is done for all four stocks over each year of data.
+
+```{python fig5-return risk}
+
+display(_01.plot_ret_risk)
+plt.close()
+
+```
+
+**Figure 5:** Risk-return plots of each tech stock for 2016-2018 by year
+
+<br>
+
+NOTE: need to tighten margins around super labels and title
+
+
+
+
+
+
+
+
+
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{python}
+1 + 1
+```
+
+You can add options to executable code like this 
+
+```{python}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
