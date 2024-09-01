@@ -31,7 +31,7 @@ sys.path.append(str(code_dir))
 #source other scripts
 from _00_helper_fns import calc_mae, calc_rmse
 import _01_data_initial_clean_check_eda as _01
-# import _02_prepare_fit_models as _02
+import _02_prepare_fit_models as _02
 # import _03_model_forecast_diagnostics as _03
 
 ```
@@ -44,113 +44,312 @@ import _01_data_initial_clean_check_eda as _01
 
 ## Exploratory Data Analysis
 
+
+[Pick a couple tables and present here]
+
+
+
 The daily, adjusted closing stock prices were plotted for the four tech stocks--*aapl*, *msft*, 
 *amzn*, and *goog*--from 2016 through 2018.
 
 ```{python fig1-adj closing prices over time}
+#| fig-cap: 
+#| - "Figure 1: Adjusted closing prices of four technology stocks from 2016-2018"
 
 display(_01.plot_acp_time)
 plt.close()
 
 ```
 
-**Figure 1:** Adjusted closing prices of four technology stocks from 2016-2018
-
-<br>
-
 The four stocks show a similar pattern in their adjusted closing prices over the time period observed (Fig. 1). There is steady growth in 2016 followed by greater growth the following year. In the first half of 2018, the growth continues but adjusted closing prices decline for all four stocks for the remainder of 2018.
 
+<br>
 
 The stock prices were log-transformed to reduce variances to more clearly show their growth patterns.
 
 ```{python fig2-log adj closing prices over time}
+#| fig-cap: 
+#| - "Figure 2: Log-transformed adjusted closing prices of four technology stocks from 2016-2018"
 
 display(_01.plot_log_acp_time)
 plt.close()
 
 ```
 
-**Figure 2:** Log-transformed adjusted closing prices of four technology stocks from 2016-2018
-
-<br>
-
 Similar to the untransformed adjusted closing prices (Fig. 1), the log-transformed values exhibit the same pattern with growth from 2016 to mid-2018 before a decline (Fig. 2).
 
+<br>
 
 The trading volume was also plotted over this time period for the four technology stocks.
 
 ```{python fig3-volume over time}
+#| fig-cap: 
+#| - "Figure 3: Trading volume of the four technology stocks from 2016-2018"
 
 display(_01.plot_vol_time)
 plt.close()
 
 ```
 
-**Figure 3:** Trading volume of the four technology stocks from 2016-2018
-
-<br>
-
 In general, *amzn* and *aapl* had greater trading volumes than *goog* and *msft* from 2016-2018 (Fig. 3). All four stocks had their highest volumes in early 2016 and late 2018.
 
-
+<br>
 
 Distributions of data were visualized using boxplots. 
 
 ```{python fig4-boxplot adj closing prices}
+#| fig-cap: 
+#| - "Figure 4: Boxplots of adjusted closing prices of four tech stocks from 2016-2018"
 
 display(_01.plot_box_acp)
 plt.close()
 
 ```
 
-**Figure 4:** Boxplots of adjusted closing prices of four tech stocks from 2016-2018
-
-<br>
-
 *msft* has far greater median adjusted closing prices than the other three stocks, while *aapl* and *goog* have smaller inter-quartile ranges than *aapl* and *amzn* (Fig. 4). There are no outliers present for any tech stock.
 
+<br>
 
 In addition to daily adjusted closing prices, the return, or daily percent change in these values, can be a helpful metric in understanding a stock. When combined with risk, or the standard deviation in returns, the relationship between these two metrics can be visualized. This is done for all four stocks over each year of data.
 
 ```{python fig5-return risk}
+#| fig-cap:
+#| - "Figure 5: Risk-return plots of each tech stock for 2016-2018 by year"
 
 display(_01.plot_ret_risk)
 plt.close()
 
 ```
 
-**Figure 5:** Risk-return plots of each tech stock for 2016-2018 by year
+Overall, return:risk were strong in 2017, subpar in 2016, and mixed in 2018 (Fig. 5). On average, *amzn* performed the strongest, while *goog* performed the weakest.
 
 <br>
 
-NOTE: need to tighten margins around super labels and title
+Correlations of returns were calculated using Pearson correlations.
 
+```{python fig6-return corr}
+#| fig-cap:
+#| - "Figure 6: Heatmap of bivariate correlations of returns of four tech stocks from 2016-2018"
 
+display(_01.plot_heatmap_corr)
+plt.close()
 
-
-
-
-
-
-
-
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{python}
-1 + 1
 ```
 
-You can add options to executable code like this 
+All pairs of tech stocks exhibit moderate correlations (0.5 < *r* < 0.8) of returns from 2016-2018 (Fig. 6).
 
-```{python}
-#| echo: false
-2 * 2
+
+## Data Transformation and Stationarity
+The adjusted closing stock prices of all four technology stocks were (natural) log transformed to help stabilize their variances and improve normality of residuals. Following transformation, each stock was assessed for stationarity via Augmented Dickey-Fuller tests. 
+
+```{python tabX-ad fuller results}
+
+#GT of df_adfuller_results
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+The test results indicate that the log-transformed adjusted closing prices for all four tech stocks are not stationary because no p-value < 0.05 (Table X). Thus, first-order differencing was applied and a second set of Augmented Dickey-Fuller tests were re-run.
+
+```{python tabX-ad fuller results on diff data}
+
+#GT of df_diff_adfuller_results
+
+```
+
+All four stocks exhibited stationarity of their differenced log-transformed adjusted closing prices per the results of the Augmented Dickey-Fuller tests (Table X).
+
+
+## Identify Starting ARIMA Parameters
+The initial parameters for the ARIMA models for each stock were chosen by reviewing the partial autocorrelation and autocorrelation plots.
+
+::: {.panel-tabset}
+### Partial Autocorrelation
+
+```{python fig7a-initial partial autocorr}
+#| fig-cap:
+#| - "Figure 7a: Partial autocorrelations of differenced log-transformed closing stock prices of four tech stocks from 2016-2018"
+
+display(_02.plot_initial_pacf)
+plt.close()
+
+```
+
+
+### Autocorrelation
+
+```{python fig7b-initial autocorr}
+#| fig-cap:
+#| - "Figure 7b: Autocorrelations of differenced log-transformed closing stock prices of four tech stocks from 2016-2018"
+
+display(_02.plot_initial_acf)
+plt.close()
+
+```
+
+:::
+
+The partial autocorrelation (Fig. 7a) and autocorrelation (Fig. 7b) plots indicate the following initial parameters: 
+
+[Insert quarto-style table]
+<!-- aapl: (0, 1, 0) -->
+<!-- msft: (2, 1, 1) -->
+<!-- amzn: (0, 1, 0) -->
+<!-- goog: (0, 1, 0) -->
+
+
+## Model Fitting and Selection
+ARIMA models were run on each stock using the initial parameters. Parameter values were adjusted after assessing autocorrelation and parameter significance with the goal of the most parsimonious ARIMA model that fits the data. ARIMA models with the following parameters were selected as a result of this process.
+
+[Insert quarto-style table]
+
+<!-- aapl: (0, 1, 1) -->
+<!-- msft: (2, 1, 1) -->
+<!-- amzn: (1, 1, 1) -->
+<!-- goog: (0, 1, 1) -->
+
+Residuals from ARIMA models were assessed for heteroscedasticity, normality, partial autocorrelation, and autocorrelation.
+
+
+::: {.panel-tabset}
+### Apple
+
+::: {.panel-tabset}
+#### Heteroscedasticity and normality
+
+```{python fig8a-aapl resid var norm}
+#| fig-cap:
+#| - "Figure 8a: Assessments of heteroscedasticity and normality of residuals from selected ARIMA model for aapl" 
+
+display(_02.plot_aapl_var_norm)
+plt.close()
+
+```
+
+
+#### Partial autocorrelation and autocorrelation
+  
+```{python fig8b-aapl resid partial full autocorr}
+#| fig-cap:
+#| - "Figure 8b: Partial autocorrelations and autocorrelations of residuals from selected ARIMA model for aapl"
+
+display(_02.plot_aapl_resid_pacf_acf)
+plt.close()
+
+```
+
+:::
+
+### Microsoft
+
+::: {.panel-tabset}
+#### Heteroscedasticity and normality
+
+```{python fig9a-msft resid var norm}
+#| fig-cap:
+#| - "Figure 9a: Assessments of heteroscedasticity and normality of residuals from selected ARIMA model for msft"
+
+display(_02.plot_msft_var_norm)
+plt.close()
+
+```
+
+
+#### Partial autocorrelation and autocorrelation
+
+```{python fig9b-msft resid partial full autocorr}
+#| fig-cap:
+#| - "Figure 9b: Partial autocorrelations and autocorrelations of residuals from selected ARIMA model for msft"
+
+display(_02.plot_msft_resid_pacf_acf)
+plt.close()
+
+```
+
+:::
+
+### Amazon
+
+::: {.panel-tabset}
+#### Heteroscedasticity and normality
+
+```{python fig10a-amzn resid var norm}
+#| fig-cap:
+#| - "Figure 10a: Assessments of heteroscedasticity and normality of residuals from selected ARIMA model for amzn"
+
+display(_02.plot_amzn_var_norm)
+plt.close()
+
+```
+
+
+#### Partial autocorrelation and autocorrelation
+
+```{python fig10b-amzn resid partial full autocorr}
+#| fig-cap:
+#| - "Figure 10b: Partial autocorrelations and autocorrelations of residuals from selected ARIMA model for amzn"
+
+display(_02.plot_amzn_resid_pacf_acf)
+plt.close()
+
+```
+
+:::
+
+### Google
+
+::: {.panel-tabset}
+#### Heteroscedasticity and normality
+
+```{python fig11a-goog resid var norm}
+#| fig-cap:
+#| - "Figure 11a: Assessments of heteroscedasticity and normality of residuals from selected ARIMA model for goog"
+
+display(_02.plot_goog_var_norm)
+plt.close()
+
+```
+
+
+#### Partial autocorrelation and autocorrelation
+
+```{python fig11b-goog resid full partial autocorr}
+#| fig-cap:
+#| - "Figure 11b: Partial autocorrelations and autocorrelations of residuals from selected ARIMA model for goog"
+
+display(_02.plot_goog_resid_pacf_acf)
+plt.close()
+
+```
+
+:::
+
+:::
+
+
+
+Following these results, the final models for each tech stock are as follows.
+
+<!-- ::: {.panel-tabset} -->
+
+
+
+
+<!-- ::: -->
+
+## Model Forecasting
+
+
+
+End with Forecasted versus true values plot
+
+
+
+## Model Diagnostics
+
+
+
+## Conclusion/Interpretation
+
+
+
+
