@@ -36,13 +36,19 @@ df_ac_log = df_ac.apply(np.log)
 
 # Stationarity Check and Differencing===============================================================
 ## Stationarity
-df_ac_log.apply(adfuller).iloc[1]
+df_adfuller_results = df_ac_log.apply(adfuller).iloc[1].reset_index().rename({'index': 'variable', 
+                                                                              1: 'p-value'},
+                                                                              axis=1)
+df_adfuller_results 
 #no p-values < 0.5, so no series is stationary
 
 
 ## Differencing
 df_ac_log_diff = df_ac_log.diff(axis=0).dropna()
-df_ac_log_diff.apply(adfuller).iloc[1]
+df_diff_adfuller_results = df_ac_log_diff.apply(adfuller).iloc[1].reset_index().rename({'index': 'variable', 
+                                                                                        1: 'p-value'},
+                                                                                        axis=1)
+df_diff_adfuller_results                                                                                     
 #all 0s, so all series are stationary
 
 
@@ -84,6 +90,9 @@ fig.supxlabel('Lag')
 fig.supylabel('Autocorrelation')
     
 plt.tight_layout()
+
+plot_initial_acf = plt.gcf()
+
 plt.show()
 plt.close()
 #use ACF plot to determine q (MA order)
@@ -96,7 +105,7 @@ plt.close()
 
 
 ## Partial Autocorrelation Function (PACF)
-#partial autocorrelation at lag k is the autocorrelaiton between x(t) and x(t-k) that is not 
+#partial autocorrelation at lag k is the autocorrelation between x(t) and x(t-k) that is not 
   #accounted for by lags 1 through k-1
 #critical difference between autocorrelation and partial autocorrelation is the inclusion/exclusion
   #of indirect correlations in the calculation
@@ -121,6 +130,9 @@ fig.supxlabel('Lag')
 fig.supylabel('Partial autocorrelation')
     
 plt.tight_layout()
+
+plot_initial_pacf = plt.gcf()
+
 plt.show()
 plt.close()
 #p is the number of lags before spikes drop to zero/near-zero
@@ -188,13 +200,15 @@ ax[0].scatter(model_aapl_fit.fittedvalues, resid_aapl)
 ax[0].axhline(0, color='red', linestyle='--')
 ax[0].set_xlabel('Fitted Values')
 ax[0].set_ylabel('Residuals')
-ax[0].set_title('Residuals vs Fitted Values')
+ax[0].set_title('Heteroscedasticity')
 
 resid_aapl.plot(ax=ax[1], kind='kde')
 ax[1].set_xlabel('Residuals')
 ax[1].set_ylabel('Density')
-ax[1].set_title("Density of Residuals")
+ax[1].set_title("Normality")
 ax[1].get_legend().remove()
+
+plot_aapl_var_norm = plt.gcf()
 
 plt.show()
 plt.close()
@@ -208,14 +222,25 @@ model_aapl_fit.fittedvalues.sort_values(ascending=True).head(30)
 
 
 #### Assess autocorrelation and partial autocorrelation
-plot_acf(resid_aapl)
-plt.show()
-plt.close()
+fig, ax = plt.subplots(1, 2)
 
-plot_pacf(resid_aapl)
+plot_pacf(resid_aapl, ax=ax[0], title="")
+ax[0].set_ylabel("Partial autocorrelation")
+
+plot_acf(resid_aapl, ax=ax[1], title="")
+ax[1].set_ylabel("Autocorrelation")
+
+fig.supxlabel("Lag")
+fig.suptitle("Partial autocorrelation and autocorrelation \nof aapl residuals from ARIMA model")
+
+plt.tight_layout()
+
+plot_aapl_resid_pacf_acf = plt.gcf()
+
 plt.show()
 plt.close()
 #no concerns about autocorrelation of residuals
+
 
 
 ## msft-------------------------
@@ -242,13 +267,15 @@ ax[0].scatter(model_msft_fit.fittedvalues, resid_msft)
 ax[0].axhline(0, color='red', linestyle='--')
 ax[0].set_xlabel('Fitted Values')
 ax[0].set_ylabel('Residuals')
-ax[0].set_title('Residuals vs Fitted Values')
+ax[0].set_title('Heteroscedasticity')
 
 resid_msft.plot(ax=ax[1], kind='kde')
 ax[1].set_xlabel('Residuals')
 ax[1].set_ylabel('Density')
-ax[1].set_title("Density of Residuals")
+ax[1].set_title("Normality")
 ax[1].get_legend().remove()
+
+plot_msft_var_norm = plt.gcf()
 
 plt.show()
 plt.close()
@@ -256,14 +283,24 @@ plt.close()
 
 
 #### Assess autocorrelation and partial autocorrelation
-plot_acf(resid_msft)
-plt.show()
-plt.close()
+fig, ax = plt.subplots(1, 2)
 
-plot_pacf(resid_msft)
+plot_pacf(resid_msft, ax=ax[0], title="")
+ax[0].set_ylabel("Partial autocorrelation")
+
+plot_acf(resid_msft, ax=ax[1], title="")
+ax[1].set_ylabel("Autocorrelation")
+
+fig.supxlabel("Lag")
+fig.suptitle("Partial autocorrelation and autocorrelation \nof msft residuals from ARIMA model")
+
+plt.tight_layout()
+
+plot_msft_resid_pacf_acf = plt.gcf()
+
 plt.show()
 plt.close()
-#no conerns
+#no concerns
 
 
 
@@ -338,13 +375,15 @@ ax[0].axhline(0, color='red', linestyle='--')
 # ax[0].set_xlim(0, 0.0022) #showws symmetrical distribution with low outliers
 ax[0].set_xlabel('Fitted Values')
 ax[0].set_ylabel('Residuals')
-ax[0].set_title('Residuals vs Fitted Values')
+ax[0].set_title('Heteroscedasticity')
 
 resid_msft.plot(ax=ax[1], kind='kde')
 ax[1].set_xlabel('Residuals')
 ax[1].set_ylabel('Density')
-ax[1].set_title("Density of Residuals")
+ax[1].set_title("Normality")
 ax[1].get_legend().remove()
+
+plot_amzn_var_norm = plt.gcf()
 
 plt.show()
 plt.close()
@@ -352,14 +391,25 @@ plt.close()
 
 
 #### Assess autocorrelation and partial autocorrelation
-plot_acf(resid_amzn)
-plt.show()
-plt.close()
+fig, ax = plt.subplots(1, 2)
 
-plot_pacf(resid_amzn)
+plot_pacf(resid_amzn, ax=ax[0], title="")
+ax[0].set_ylabel("Partial autocorrelation")
+
+plot_acf(resid_amzn, ax=ax[1], title="")
+ax[1].set_ylabel("Autocorrelation")
+
+fig.supxlabel("Lag")
+fig.suptitle("Partial autocorrelation and autocorrelation \nof amzn residuals from ARIMA model")
+
+plt.tight_layout()
+
+plot_amzn_resid_pacf_acf = plt.gcf()
+
 plt.show()
 plt.close()
-#no conerns
+#no concerns
+
 
 
 ## goog-------------------------
@@ -414,13 +464,15 @@ ax[0].axhline(0, color='red', linestyle='--')
 # ax[0].set_xlim(0, 0.0012) #showws symmetrical distribution with low outliers
 ax[0].set_xlabel('Fitted Values')
 ax[0].set_ylabel('Residuals')
-ax[0].set_title('Residuals vs Fitted Values')
+ax[0].set_title('Heteroscedasticity')
 
 resid_msft.plot(ax=ax[1], kind='kde')
 ax[1].set_xlabel('Residuals')
 ax[1].set_ylabel('Density')
-ax[1].set_title("Density of Residuals")
+ax[1].set_title("Normality")
 ax[1].get_legend().remove()
+
+plot_goog_var_norm = plt.gcf()
 
 plt.show()
 plt.close()
@@ -428,14 +480,25 @@ plt.close()
 
 
 #### Assess autocorrelation and partial autocorrelation
-plot_acf(resid_goog)
-plt.show()
-plt.close()
+fig, ax = plt.subplots(1, 2)
 
-plot_pacf(resid_goog)
+plot_pacf(resid_goog, ax=ax[0], title="")
+ax[0].set_ylabel("Partial autocorrelation")
+
+plot_acf(resid_goog, ax=ax[1], title="")
+ax[1].set_ylabel("Autocorrelation")
+
+fig.supxlabel("Lag")
+fig.suptitle("Partial autocorrelation and autocorrelation \nof goog residuals from ARIMA model")
+
+plt.tight_layout()
+
+plot_goog_resid_pacf_acf = plt.gcf()
+
 plt.show()
 plt.close()
-#no conerns
+#no concerns
+
 
 
 ## Final sets of parameters-------------------------

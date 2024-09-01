@@ -112,17 +112,18 @@ plt.plot(df.index, df.goog_adj_close, label="Google", color='green')
 plt.ylim(0, 125)
 plt.xticks(ticks=xlabs, labels=xlabs)
 
-plt.title("Tech stock adjusted closing prices 2020-2022")
+plt.title("Tech stock adjusted closing prices 2016-2018")
 plt.xlabel("Date")
 plt.ylabel("Adjusted closing price ($)")
 
 plt.legend()
 
+plot_acp_time = plt.gcf()
+
 plt.show()
 plt.close()
 #all four stocks: steady growth in 2016; increasing growth in 2017; 2017 growth continues into 
   #first half of 2018; and decline in second half of 2018
-
 
 
 ### Log-transformed prices over time
@@ -136,11 +137,13 @@ plt.plot(df.index, np.log(df.goog_adj_close), label="Google", color='green')
 plt.ylim(0, 5)
 plt.xticks(ticks=xlabs, labels=xlabs)
 
-plt.title("Tech stock adjusted closing prices 2020-2022")
+plt.title("Tech stock adjusted closing prices 2016-2018")
 plt.xlabel("Date")
 plt.ylabel("Log-adjusted closing price ($)")
 
 plt.legend()
+
+plot_log_acp_time = plt.gcf()
 
 plt.show()
 plt.close()
@@ -177,19 +180,20 @@ plt.close()
 
 
 ### Volumes over time
-plt.plot(df.index, df.aapl_volume, label="Apple", color='skyblue')
-plt.plot(df.index, df.amzn_volume, label="Amazon", color='purple')
-plt.plot(df.index, df.goog_volume, label="Google", color='green')
-plt.plot(df.index, df.msft_volume, label="Microsoft", color='darkred')
-
+plt.plot(df.index, df.aapl_volume, label="Apple", color='skyblue', alpha=0.5)
+plt.plot(df.index, df.amzn_volume, label="Amazon", color='purple', alpha=0.5)
+plt.plot(df.index, df.goog_volume, label="Google", color='green', alpha=0.5)
+plt.plot(df.index, df.msft_volume, label="Microsoft", color='darkred', alpha=0.5)
 
 plt.xticks(ticks=xlabs, labels=xlabs)
 
-plt.title("Tech stock trading volumes 2016-2018")
+plt.title("Tech stock trading volumes 2016-2018)")
 plt.xlabel("Date")
-plt.ylabel("Volume")
+plt.ylabel("Volume (x 10^8 shares/day")
 
 plt.legend()
+
+plot_vol_time = plt.gcf()
 
 plt.show()
 plt.close()
@@ -280,7 +284,10 @@ plt.close()
 ### Create boxplots of adjusted stock prices
 df_ac_box = df_ac.copy()
 df_ac_box.columns = t_stock
+
 df_ac_box.plot(kind='box', ylim=(0, 125), xlabel="Stock", ylabel="Adjusted closing stock price ($)")
+
+plot_box_acp = plt.gcf()
 
 plt.show()
 plt.close()
@@ -349,28 +356,36 @@ fig, axes = plt.subplots(2, 2)
 n = 0
 t_year = [2016, 2017, 2018]
 
-when n <= 2:
-  for i in [0, 1]:
-    for j in [0, 1]:
+for i in [0, 1]:
+  for j in [0, 1]:
+    if n == 3:
+      break
+    else:
       year = t_year[n]
       df_rr_yr = df_rr[df_rr['year']==year]
       
       axes[i,j].scatter(df_rr_yr["risk"], df_rr_yr["return"])
+      axes[i,j].plot([0, 1], [0, 1], transform=axes[i,j].transAxes, color='green', linestyle='--')
       
       for k, row in df_rr_yr.iterrows():
         axes[i,j].annotate(row['stock'], (row['risk']+0.001, row['return']+0.03), fontsize=11, ha='right')
       
       axes[i,j].set_title(year)
+      axes[i,j].set_xlim(-3, 50)
+      axes[i,j].set_ylim(-3, 50)
     
       n = n + 1
-      
-axes[1,1].remove()
 
-fig.suptitle("Risk-return plots of four tech stocks from 2020-2022")
+axes[i,j].remove()
+
+fig.suptitle("Risk-return plots of four tech stocks from 2016-2018")
 fig.supxlabel('Risk', fontsize=14)
 fig.supylabel('Return', fontsize=14)
 
 plt.tight_layout()
+
+plot_ret_risk = plt.gcf()
+
 plt.show()
 plt.close()
 #order of decreasing return/risk
@@ -391,6 +406,9 @@ plt.figure(figsize=(8, 6))
 sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, center=0)
 
 plt.title('Correlation of Tech Stock Returns')
+
+plot_heatmap_corr = plt.gcf() 
+
 plt.show()
 plt.close()
 #strong corrs (r > 0.8): none
@@ -447,8 +465,8 @@ df[goog_cols].groupby(['year', 'month']).agg(fns)
 #save in pickle format to retain data types
 
 #change wd
-os.chdir(str(Path.cwd()) + '/data') #change wd
-Path.cwd() #returns new wd
+# os.chdir(str(Path.cwd()) + '/data') #change wd
+# Path.cwd() #returns new wd
 
 #save file
 # afile = open('data_initial_clean.pkl', 'wb')
