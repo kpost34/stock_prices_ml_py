@@ -200,13 +200,15 @@ ax[0].scatter(model_aapl_fit.fittedvalues, resid_aapl)
 ax[0].axhline(0, color='red', linestyle='--')
 ax[0].set_xlabel('Fitted Values')
 ax[0].set_ylabel('Residuals')
-ax[0].set_title('Heteroscedasticity')
+ax[0].set_title('Residuals versus fitted values \n(Heteroscedasticity)')
 
 resid_aapl.plot(ax=ax[1], kind='kde')
 ax[1].set_xlabel('Residuals')
 ax[1].set_ylabel('Density')
-ax[1].set_title("Normality")
+ax[1].set_title("Density of residuals \n(Normality)")
 ax[1].get_legend().remove()
+
+plt.tight_layout()
 
 plot_aapl_var_norm = plt.gcf()
 
@@ -231,7 +233,6 @@ plot_acf(resid_aapl, ax=ax[1], title="")
 ax[1].set_ylabel("Autocorrelation")
 
 fig.supxlabel("Lag")
-fig.suptitle("Partial autocorrelation and autocorrelation \nof aapl residuals from ARIMA model")
 
 plt.tight_layout()
 
@@ -267,13 +268,15 @@ ax[0].scatter(model_msft_fit.fittedvalues, resid_msft)
 ax[0].axhline(0, color='red', linestyle='--')
 ax[0].set_xlabel('Fitted Values')
 ax[0].set_ylabel('Residuals')
-ax[0].set_title('Heteroscedasticity')
+ax[0].set_title('Residuals versus fitted values \n(Heteroscedasticity)')
 
 resid_msft.plot(ax=ax[1], kind='kde')
 ax[1].set_xlabel('Residuals')
 ax[1].set_ylabel('Density')
-ax[1].set_title("Normality")
+ax[1].set_title("Density of residuals \n(Normality)")
 ax[1].get_legend().remove()
+
+plt.tight_layout()
 
 plot_msft_var_norm = plt.gcf()
 
@@ -292,7 +295,6 @@ plot_acf(resid_msft, ax=ax[1], title="")
 ax[1].set_ylabel("Autocorrelation")
 
 fig.supxlabel("Lag")
-fig.suptitle("Partial autocorrelation and autocorrelation \nof msft residuals from ARIMA model")
 
 plt.tight_layout()
 
@@ -375,13 +377,15 @@ ax[0].axhline(0, color='red', linestyle='--')
 # ax[0].set_xlim(0, 0.0022) #showws symmetrical distribution with low outliers
 ax[0].set_xlabel('Fitted Values')
 ax[0].set_ylabel('Residuals')
-ax[0].set_title('Heteroscedasticity')
+ax[0].set_title('Residuals versus fitted values \n(Heteroscedasticity)')
 
 resid_msft.plot(ax=ax[1], kind='kde')
 ax[1].set_xlabel('Residuals')
 ax[1].set_ylabel('Density')
-ax[1].set_title("Normality")
+ax[1].set_title("Density of residuals \n(Normality)")
 ax[1].get_legend().remove()
+
+plt.tight_layout()
 
 plot_amzn_var_norm = plt.gcf()
 
@@ -400,7 +404,6 @@ plot_acf(resid_amzn, ax=ax[1], title="")
 ax[1].set_ylabel("Autocorrelation")
 
 fig.supxlabel("Lag")
-fig.suptitle("Partial autocorrelation and autocorrelation \nof amzn residuals from ARIMA model")
 
 plt.tight_layout()
 
@@ -464,13 +467,15 @@ ax[0].axhline(0, color='red', linestyle='--')
 # ax[0].set_xlim(0, 0.0012) #showws symmetrical distribution with low outliers
 ax[0].set_xlabel('Fitted Values')
 ax[0].set_ylabel('Residuals')
-ax[0].set_title('Heteroscedasticity')
+ax[0].set_title('Residuals versus fitted values \n(Heteroscedasticity)')
 
 resid_msft.plot(ax=ax[1], kind='kde')
 ax[1].set_xlabel('Residuals')
 ax[1].set_ylabel('Density')
-ax[1].set_title("Normality")
+ax[1].set_title("Density of residuals \n(Normality)")
 ax[1].get_legend().remove()
+
+plt.tight_layout()
 
 plot_goog_var_norm = plt.gcf()
 
@@ -489,7 +494,6 @@ plot_acf(resid_goog, ax=ax[1], title="")
 ax[1].set_ylabel("Autocorrelation")
 
 fig.supxlabel("Lag")
-fig.suptitle("Partial autocorrelation and autocorrelation \nof goog residuals from ARIMA model")
 
 plt.tight_layout()
 

@@ -3,11 +3,13 @@
 
 # Load Libraries====================================================================================
 import pandas as pd
+import numpy as np
 import math
+from great_tables import GT
 
 
 
-# Define Functions==================================================================================
+# Calculation Functions=============================================================================
 ## Calculate mean absolute error (MAE)
 def calc_mae(df, stock, places=2):
   #create objs
@@ -60,6 +62,18 @@ def calc_rmse(df, stock, places=2):
   
   return df_rmse_mean_pct
 
+
+
+# Formatting Functions==============================================================================
+## Format summary stats tables
+def format_number_gt(df, col_range, prefix):
+  r = range(col_range[0], col_range[1])
+  
+  summ_stats = df.iloc[:, np.r_[0, r]]
+  summ_stats.columns = summ_stats.columns.str.replace(prefix, '')
+  gt_summ_stats = GT(summ_stats)
+  gt_summ_stats = gt_summ_stats.fmt_number(columns='volume', n_sigfig=4)
+  return gt_summ_stats
 
 
 

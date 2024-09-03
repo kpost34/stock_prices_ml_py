@@ -137,7 +137,7 @@ plt.plot(df.index, np.log(df.goog_adj_close), label="Google", color='green')
 plt.ylim(0, 5)
 plt.xticks(ticks=xlabs, labels=xlabs)
 
-plt.title("Tech stock adjusted closing prices 2016-2018")
+plt.title("Tech stock log-adjusted closing prices 2016-2018")
 plt.xlabel("Date")
 plt.ylabel("Log-adjusted closing price ($)")
 
@@ -418,7 +418,7 @@ plt.close()
 
 ## Calculate basic stats (mean, median, st dev)
 ### Overall
-df.apply("describe")
+df_describe = df.apply("describe").round(2).reset_index(names='stat')
 
 
 ### Add year and month to DF
@@ -437,6 +437,30 @@ df[df.columns[df.columns.str.startswith(('aapl', 'year'))]].groupby('year').agg(
 df[df.columns[df.columns.str.startswith(('msft', 'year'))]].groupby('year').agg(fns)
 df[df.columns[df.columns.str.startswith(('amzn', 'year'))]].groupby('year').agg(fns)
 df[df.columns[df.columns.str.startswith(('goog', 'year'))]].groupby('year').agg(fns)
+
+df_aapl_stats_yr = df[df.columns[df.columns.str.startswith(('aapl', 'year'))]].groupby('year').agg(fns)
+df_msft_stats_yr = df[df.columns[df.columns.str.startswith(('msft', 'year'))]].groupby('year').agg(fns)
+df_amzn_stats_yr = df[df.columns[df.columns.str.startswith(('amzn', 'year'))]].groupby('year').agg(fns)
+df_goog_stats_yr = df[df.columns[df.columns.str.startswith(('goog', 'year'))]].groupby('year').agg(fns)
+
+
+#### By stock and year for adj closing price only
+df_aapl_ac_yr = df_aapl_stats_yr.iloc[:, 24:30].round(2).copy()
+df_aapl_ac_yr.columns = df_aapl_ac_yr.columns.droplevel()
+df_aapl_ac_yr = df_aapl_ac_yr.reset_index()
+
+df_msft_ac_yr = df_msft_stats_yr.iloc[:, 24:30].round(2).copy()
+df_msft_ac_yr.columns = df_msft_ac_yr.columns.droplevel()
+df_msft_ac_yr = df_msft_ac_yr.reset_index()
+
+df_amzn_ac_yr = df_amzn_stats_yr.iloc[:, 24:30].round(2).copy()
+df_amzn_ac_yr.columns = df_amzn_ac_yr.columns.droplevel()
+df_amzn_ac_yr = df_amzn_ac_yr.reset_index()
+
+df_goog_ac_yr = df_goog_stats_yr.iloc[:, 24:30].round(2).copy()
+df_goog_ac_yr.columns = df_goog_ac_yr.columns.droplevel()
+df_goog_ac_yr = df_goog_ac_yr.reset_index()
+
 
 
 #### By stock and year and subset of cols and fns
