@@ -8,6 +8,7 @@ execute:
   message: false
 format: html
 jupyter: python3
+tbl-cap-location: top
 ---
 
 ```{python setup}
@@ -19,7 +20,8 @@ from pathlib import Path
 import os
 import sys
 import matplotlib.pyplot as plt
-from IPython.display import display
+from great_tables import GT
+from IPython.display import display, HTML
 
 #change wd
 root = '/Users/keithpost/Documents/Python/Python projects/stock_prices_ml_py/'
@@ -29,7 +31,7 @@ new_cwd = Path.cwd()
 sys.path.append(str(code_dir))
 
 #source other scripts
-from _00_helper_fns import calc_mae, calc_rmse
+from _00_helper_fns import calc_mae, calc_rmse, format_number_gt
 import _01_data_initial_clean_check_eda as _01
 import _02_prepare_fit_models as _02
 # import _03_model_forecast_diagnostics as _03
@@ -42,11 +44,117 @@ import _02_prepare_fit_models as _02
 <!-- INSERT BACKGROUND INFO -->
 
 
+
+
 ## Exploratory Data Analysis
 
+Here are summary stats for each stock over the period of training data.
 
-[Pick a couple tables and present here]
+::: {.panel-tabset}
+### Apple
 
+```{python tab1a-aapl overall summ stats}
+#| tbl-cap:
+#| - "Table 1a: Summary statistics of Apple stock from 2016-2018"
+
+gt_aapl_summ_stats = format_number_gt(df=_01.df_describe,
+                                      col_range=[1, 7],
+                                      prefix='aapl_')
+
+display(gt_aapl_summ_stats)
+
+```
+
+### Microsoft
+
+```{python tab1b-msft overall summ stats}
+#| tbl-cap:
+#| - "Table 1b: Summary statistics of Microsoft stock from 2016-2018"
+gt_msft_summ_stats = format_number_gt(df=_01.df_describe,
+                                      col_range=[7, 13],
+                                      prefix='msft_')
+
+display(gt_msft_summ_stats)
+
+```
+
+
+### Amazon
+
+```{python tab1c-amzn overall summ stats}
+#| tbl-cap:
+#| - "Table 1c: Summary statistics of Amazon stock from 2016-2018"
+gt_amzn_summ_stats = format_number_gt(df=_01.df_describe,
+                                      col_range=[13, 19],
+                                      prefix='amzn_')
+
+display(gt_amzn_summ_stats)
+
+```
+
+
+### Google
+
+```{python tab1d-goog overall summ stats}
+#| tbl-cap:
+#| - "Table 1d: Summary statistics of Google stock from 2016-2018"
+gt_goog_summ_stats = format_number_gt(df=_01.df_describe,
+                                      col_range=[19, 25],
+                                      prefix='goog_')
+
+display(gt_goog_summ_stats)
+
+```
+
+:::
+
+
+:::{.panel-tabset}
+### Apple
+
+```{python tab2a-aapl adj closing yr stats}
+#| tbl-cap:
+#| - "Table 2a: Summary statistics of Apple stock adjusted closing prices by year from 2016-2018"
+
+display(GT(_01.df_aapl_ac_yr))
+
+```
+
+
+### Microsoft
+
+```{python tab2b-msft adj closing yr stats}
+#| tbl-cap:
+#| - "Table 2b: Summary statistics of Microsoft stock adjusted closing prices by year from 2016-2018"
+
+display(GT(_01.df_msft_ac_yr))
+
+```
+
+
+### Amazon
+
+```{python tab2c-amzn adj closing yr stats}
+#| tbl-cap:
+#| - "Table 2c: Summary statistics of Amazon stock adjusted closing prices by year from 2016-2018"
+
+display(GT(_01.df_amzn_ac_yr))
+
+```
+
+
+### Google
+
+```{python tab2d-goog adj closing yr stats}
+#| tbl-cap:
+#| - "Table 2d: Summary statistics of Google stock adjusted closing prices by year from 2016-2018"
+
+display(GT(_01.df_goog_ac_yr))
+
+```
+
+
+:::
 
 
 The daily, adjusted closing stock prices were plotted for the four tech stocks--*aapl*, *msft*, 
@@ -190,22 +298,28 @@ plt.close()
 
 The partial autocorrelation (Fig. 7a) and autocorrelation (Fig. 7b) plots indicate the following initial parameters: 
 
-[Insert quarto-style table]
-<!-- aapl: (0, 1, 0) -->
-<!-- msft: (2, 1, 1) -->
-<!-- amzn: (0, 1, 0) -->
-<!-- goog: (0, 1, 0) -->
+<span style="color:gray;">Table 3: *p*, *d*, and *q* initial parameters for ARIMA models of the four tech stocks</span>
+
+stock|symbol | *p*| *d*| *q*
+-----|---|---|---|---:
+Apple|aapl|0|1|0
+Microsoft|msft|2|1|1
+Amazon|amzn|0|1|0
+Google|goog|0|1|0
 
 
 ## Model Fitting and Selection
 ARIMA models were run on each stock using the initial parameters. Parameter values were adjusted after assessing autocorrelation and parameter significance with the goal of the most parsimonious ARIMA model that fits the data. ARIMA models with the following parameters were selected as a result of this process.
 
-[Insert quarto-style table]
+<span style="color:gray;">Table 4: *p*, *d*, and *q* parameters selected for ARIMA models of the four tech stocks</span>
 
-<!-- aapl: (0, 1, 1) -->
-<!-- msft: (2, 1, 1) -->
-<!-- amzn: (1, 1, 1) -->
-<!-- goog: (0, 1, 1) -->
+stock| symbol| *p*| *d*| *q*
+-----|---|---|---|---:
+Apple|aapl|0|1|1
+Microsoft|msft|2|1|1
+Amazon|amzn|1|1|1
+Google|goog|0|1|1
+
 
 Residuals from ARIMA models were assessed for heteroscedasticity, normality, partial autocorrelation, and autocorrelation.
 
@@ -329,12 +443,21 @@ plt.close()
 
 Following these results, the final models for each tech stock are as follows.
 
-<!-- ::: {.panel-tabset} -->
+::: {.panel-tabset}
+### Apple
 
 
 
+### Microsoft
 
-<!-- ::: -->
+
+### Amazon
+
+
+### Google
+
+:::
+
 
 ## Model Forecasting
 
