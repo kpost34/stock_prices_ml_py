@@ -112,7 +112,7 @@ plt.plot(df.index, df.goog_adj_close, label="Google", color='green')
 plt.ylim(0, 125)
 plt.xticks(ticks=xlabs, labels=xlabs)
 
-plt.title("Tech stock adjusted closing prices 2016-2018")
+# plt.title("Tech stock adjusted closing prices 2016-2018")
 plt.xlabel("Date")
 plt.ylabel("Adjusted closing price ($)")
 
@@ -137,7 +137,7 @@ plt.plot(df.index, np.log(df.goog_adj_close), label="Google", color='green')
 plt.ylim(0, 5)
 plt.xticks(ticks=xlabs, labels=xlabs)
 
-plt.title("Tech stock log-adjusted closing prices 2016-2018")
+# plt.title("Tech stock log-adjusted closing prices from 2016-2018")
 plt.xlabel("Date")
 plt.ylabel("Log-adjusted closing price ($)")
 
@@ -187,7 +187,7 @@ plt.plot(df.index, df.msft_volume, label="Microsoft", color='darkred', alpha=0.5
 
 plt.xticks(ticks=xlabs, labels=xlabs)
 
-plt.title("Tech stock trading volumes 2016-2018)")
+# plt.title("Tech stock trading volumes from 2016-2018")
 plt.xlabel("Date")
 plt.ylabel("Volume (x 10^8 shares/day")
 
@@ -378,7 +378,7 @@ for i in [0, 1]:
 
 axes[i,j].remove()
 
-fig.suptitle("Risk-return plots of four tech stocks from 2016-2018")
+# fig.suptitle("Risk-return plots of four tech stocks from 2016-2018")
 fig.supxlabel('Risk', fontsize=14)
 fig.supylabel('Return', fontsize=14)
 
@@ -405,7 +405,7 @@ plt.figure(figsize=(8, 6))
 
 sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, center=0)
 
-plt.title('Correlation of Tech Stock Returns')
+# plt.title('Bivariate correlations of tech stock returns from 2016-2018')
 
 plot_heatmap_corr = plt.gcf() 
 

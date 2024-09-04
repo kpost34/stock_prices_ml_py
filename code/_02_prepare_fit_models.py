@@ -85,7 +85,7 @@ for i in range(0, 2):
     n = n + 1
 
 fig.subplots_adjust(top=1)
-fig.suptitle("Autocorrelation of adjusted closing prices of \ntech stocks from 2016-2018")
+# fig.suptitle("Autocorrelation of adjusted closing prices of \ntech stocks from 2016-2018")
 fig.supxlabel('Lag')
 fig.supylabel('Autocorrelation')
     
@@ -125,7 +125,7 @@ for i in range(0, 2):
     n = n + 1
 
 fig.subplots_adjust(top=1)
-fig.suptitle("Partial autocorrelation of adjusted closing prices of \ntech stocks from 2016-2018")
+# fig.suptitle("Partial autocorrelation of adjusted closing prices of \ntech stocks from 2016-2018")
 fig.supxlabel('Lag')
 fig.supylabel('Partial autocorrelation')
     
