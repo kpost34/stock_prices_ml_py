@@ -1,7 +1,7 @@
 # This script scales the target variable and fits a simple forecasting model
 
 
-# Load Libraries and Data Import====================================================================
+# Load Libraries, Functions, and Data===============================================================
 ## Load libraries
 import pandas as pd
 import numpy as np
@@ -13,6 +13,12 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.arima.model import ARIMA
 from scipy import stats
 import yfinance as yf
+
+
+## Load functions 
+root = '/Users/keithpost/Documents/Python/Python projects/stock_prices_ml_py/'
+os.chdir(root + 'code')
+from _00_helper_fns import extract_arima_info, extract_arima_params
 
 
 ## Data import
@@ -36,21 +42,35 @@ df_ac_log = df_ac.apply(np.log)
 
 # Stationarity Check and Differencing===============================================================
 ## Stationarity
-df_adfuller_results = df_ac_log.apply(adfuller).iloc[1].reset_index().rename({'index': 'variable', 
-                                                                              1: 'p-value'},
-                                                                              axis=1)
-df_adfuller_results 
+#run test and transpose test stats and p-values
+df_adfuller_results = df_ac_log.apply(adfuller).iloc[0:2].transpose().reset_index()
+
+#rename cols
+df_adfuller_results.columns = ['stock symbol', 'ADF test statistic', 'p-value']
+
+#clean up stock symbols and apply rounding
+df_adfuller_results.iloc[:, 0] = df_adfuller_results.iloc[:, 0].str.replace('_adj_close', '')
+df_adfuller_results.iloc[:, 1:] = df_adfuller_results.iloc[:, 1:].astype('float').round(3)
+df_adfuller_results
 #no p-values < 0.5, so no series is stationary
 
-
 ## Differencing
+#apply differencing
 df_ac_log_diff = df_ac_log.diff(axis=0).dropna()
-df_diff_adfuller_results = df_ac_log_diff.apply(adfuller).iloc[1].reset_index().rename({'index': 'variable', 
-                                                                                        1: 'p-value'},
-                                                                                        axis=1)
-df_diff_adfuller_results                                                                                     
+
+#run test and transpose test stats and p-values
+df_diff_adfuller_results = df_ac_log_diff.apply(adfuller).iloc[0:2].transpose().reset_index()
+
+#rename cols
+df_diff_adfuller_results.columns = ['stock symbol', 'ADF test statistic', 'p-value']
+
+#clean up stock symbols and apply rounding
+df_diff_adfuller_results.iloc[:, 0] = df_diff_adfuller_results.iloc[:, 0].str.replace('_adj_close', '')
+df_diff_adfuller_results.iloc[:, 1:] = df_diff_adfuller_results.iloc[:, 1:].astype('float').round(3)
+df_diff_adfuller_results
 #all 0s, so all series are stationary
 
+                                                                      
 
 # Identify ARIMA Parameters (p, d,  q)==============================================================
 ## Autocorrelation (ACF)
@@ -510,6 +530,60 @@ plt.close()
 #msft: 2, 1
 #amzn: 1, 1
 #goog: 0, 1
+
+
+
+# Wrangle Final Models for Report===================================================================
+## Apple
+#summary of results
+model_aapl_fit.summary()
+
+#generate DF of model summary
+df_aapl_summary = extract_arima_info(model_aapl_fit)
+df_aapl_summary
+
+#generate DF of parameters
+df_aapl_params = extract_arima_params(model_aapl_fit)
+df_aapl_params
+
+
+## Microsoft
+#summary of results
+model_msft_fit.summary()
+
+#generate DF of model summary
+df_msft_summary = extract_arima_info(model_msft_fit)
+df_msft_summary
+
+#generate DF of parameters
+df_msft_params = extract_arima_params(model_msft_fit)
+df_msft_params
+
+
+## Amazon
+#summary of results
+model_amzn_fit.summary()
+
+#generate DF of model summary
+df_amzn_summary = extract_arima_info(model_amzn_fit)
+df_amzn_summary
+
+#generate DF of parameters
+df_amzn_params = extract_arima_params(model_amzn_fit)
+df_amzn_params
+
+
+## Google
+#summary of results
+model_goog_fit.summary()
+
+#generate DF of model summary
+df_goog_summary = extract_arima_info(model_goog_fit)
+df_goog_summary
+
+#generate DF of parameters
+df_goog_params = extract_arima_params(model_goog_fit)
+df_goog_params
 
 
 
