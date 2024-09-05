@@ -64,6 +64,41 @@ def calc_rmse(df, stock, places=2):
 
 
 
+# Extraction Functions===============================================================================
+## Extract model metrics and Ljung-Box test results
+def extract_arima_info(model):
+  
+  #run Ljung-Box test (for autocorrelation)
+  np_lb_results = model.test_serial_correlation(method='ljungbox', lags=10)
+  lb_stat = np_lb_results[0, 0, 0]
+  lb_p = np_lb_results[0, 1, 0]
+
+  #generate DF of model summary
+  df_summary = pd.DataFrame({
+    "AIC": model.aic,
+    "BIC": model.bic,
+    "Log-Likelihood": model.llf,
+    'Ljung-Box Statistic': lb_stat,
+    'Ljung-Box p-value': lb_p
+  }, index=[0]).round(3)
+
+  return df_summary
+  
+  
+## Extract ARIMA parameters
+def extract_arima_params(model):
+  df_params = pd.DataFrame({
+    'Coef': model.params,
+    'Std Err': model.bse,
+    'z': model.params / model.bse,
+    'P>|z|': model.pvalues,
+    'CI Lower': model.conf_int()[0],
+    'CI Upper': model.conf_int()[1]
+  }).round(3).reset_index(names='parameter')
+  
+  return df_params
+  
+
 # Formatting Functions==============================================================================
 ## Format summary stats tables
 def format_number_gt(df, col_range, prefix):
