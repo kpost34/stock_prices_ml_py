@@ -31,7 +31,7 @@ new_cwd = Path.cwd()
 sys.path.append(str(code_dir))
 
 #source other scripts
-from _00_helper_fns import calc_mae, calc_rmse, format_number_gt
+from _00_helper_fns import format_number_gt
 import _01_data_initial_clean_check_eda as _01
 import _02_prepare_fit_models as _02
 # import _03_model_forecast_diagnostics as _03
@@ -153,7 +153,6 @@ display(GT(_01.df_goog_ac_yr))
 
 ```
 
-
 :::
 
 
@@ -162,7 +161,7 @@ The daily, adjusted closing stock prices were plotted for the four tech stocks--
 
 ```{python fig1-adj closing prices over time}
 #| fig-cap: 
-#| - "Figure 1: Adjusted closing prices of four technology stocks from 2016-2018"
+#| - "Figure 1: Adjusted closing prices of the four technology stocks from 2016-2018"
 
 display(_01.plot_acp_time)
 plt.close()
@@ -177,7 +176,7 @@ The stock prices were log-transformed to reduce variances to more clearly show t
 
 ```{python fig2-log adj closing prices over time}
 #| fig-cap: 
-#| - "Figure 2: Log-transformed adjusted closing prices of four technology stocks from 2016-2018"
+#| - "Figure 2: Log-transformed adjusted closing prices of the four technology stocks from 2016-2018"
 
 display(_01.plot_log_acp_time)
 plt.close()
@@ -192,7 +191,7 @@ The trading volume was also plotted over this time period for the four technolog
 
 ```{python fig3-volume over time}
 #| fig-cap: 
-#| - "Figure 3: Trading volume of the four technology stocks from 2016-2018"
+#| - "Figure 3: Trading volumes of the four technology stocks from 2016-2018"
 
 display(_01.plot_vol_time)
 plt.close()
@@ -207,7 +206,7 @@ Distributions of data were visualized using boxplots.
 
 ```{python fig4-boxplot adj closing prices}
 #| fig-cap: 
-#| - "Figure 4: Boxplots of adjusted closing prices of four tech stocks from 2016-2018"
+#| - "Figure 4: Boxplots of adjusted closing prices of the four technology stocks from 2016-2018"
 
 display(_01.plot_box_acp)
 plt.close()
@@ -222,7 +221,7 @@ In addition to daily adjusted closing prices, the return, or daily percent chang
 
 ```{python fig5-return risk}
 #| fig-cap:
-#| - "Figure 5: Risk-return plots of each tech stock for 2016-2018 by year"
+#| - "Figure 5: Risk-return plots of each technology stock for 2016-2018 by year"
 
 display(_01.plot_ret_risk)
 plt.close()
@@ -237,7 +236,7 @@ Correlations of returns were calculated using Pearson correlations.
 
 ```{python fig6-return corr}
 #| fig-cap:
-#| - "Figure 6: Heatmap of bivariate correlations of returns of four tech stocks from 2016-2018"
+#| - "Figure 6: Heatmap of bivariate correlations of returns of the four technnology stocks from 2016-2018"
 
 display(_01.plot_heatmap_corr)
 plt.close()
@@ -250,21 +249,25 @@ All pairs of tech stocks exhibit moderate correlations (0.5 < *r* < 0.8) of retu
 ## Data Transformation and Stationarity
 The adjusted closing stock prices of all four technology stocks were (natural) log transformed to help stabilize their variances and improve normality of residuals. Following transformation, each stock was assessed for stationarity via Augmented Dickey-Fuller tests. 
 
-```{python tabX-ad fuller results}
+```{python tab3-ad fuller results}
+#| tbl-cap: 
+#| - "Table 3: Results of Augmented Dickey-Fuller tests on log-transformed adjusted closing prices" 
 
-#GT of df_adfuller_results
-
-```
-
-The test results indicate that the log-transformed adjusted closing prices for all four tech stocks are not stationary because no p-value < 0.05 (Table X). Thus, first-order differencing was applied and a second set of Augmented Dickey-Fuller tests were re-run.
-
-```{python tabX-ad fuller results on diff data}
-
-#GT of df_diff_adfuller_results
+display(GT(_02.df_adfuller_results))
 
 ```
 
-All four stocks exhibited stationarity of their differenced log-transformed adjusted closing prices per the results of the Augmented Dickey-Fuller tests (Table X).
+The test results indicate that the log-transformed adjusted closing prices for all four tech stocks are not stationary because no p-value < 0.05 (Table 3). Thus, first-order differencing was applied and a second set of Augmented Dickey-Fuller tests were re-run.
+
+```{python tab4-ad fuller results on diff data}
+#| tbl-cap:
+#| - "Table 4: Results of Agumented Dickey-Fuller tests on differenced log-transformed adjusted closing prices"
+
+display(GT(_02.df_diff_adfuller_results))
+
+```
+
+All four stocks exhibited stationarity of their differenced log-transformed adjusted closing prices per the results of the Augmented Dickey-Fuller tests (Table 4).
 
 
 ## Identify Starting ARIMA Parameters
@@ -440,21 +443,115 @@ plt.close()
 :::
 
 
-
 Following these results, the final models for each tech stock are as follows.
 
 ::: {.panel-tabset}
 ### Apple
 
+::: {.panel-tabset}
+#### Final model summary
+
+```{python tab5a-aapl final model summary}
+#| tbl-cap: 
+#| - "Table 5a: Summary information for final Apple ARIMA Model"
+
+display(GT(_02.df_aapl_summary))
+
+```
+
+
+#### Final model parameters
+
+```{python tab5b-aapl final model params}
+#| tbl-cap: 
+#| - "Table 5b: Parameter information for final Apple ARIMA Model"
+
+display(GT(_02.df_aapl_params))
+
+```
+
+:::
 
 
 ### Microsoft
 
+::: {.panel-tabset}
+#### Final model summary
+
+```{python tab6a-aapl final model summary}
+#| tbl-cap: 
+#| - "Table 6a: Summary information for final Microsoft ARIMA Model"
+
+display(GT(_02.df_msft_summary))
+
+```
+
+
+#### Final model parameters
+
+```{python tab6b-aapl final model params}
+#| tbl-cap: 
+#| - "Table 6b: Parameter information for final Microsft ARIMA Model"
+
+display(GT(_02.df_msft_params))
+
+```
+
+:::
+
 
 ### Amazon
 
+::: {.panel-tabset}
+#### Final model summary
+
+```{python tab7a-amzn final model summary}
+#| tbl-cap: 
+#| - "Table 7a: Summary information for final Amazon ARIMA Model"
+
+display(GT(_02.df_amzn_summary))
+
+```
+
+
+#### Final model parameters
+
+```{python tab7b-amzn final model params}
+#| tbl-cap: 
+#| - "Table 7b: Parameter information for final Amazon ARIMA Model"
+
+display(GT(_02.df_amzn_params))
+
+```
+
+:::
+
 
 ### Google
+
+::: {.panel-tabset}
+#### Final model summary
+
+```{python tab8a-goog final model summary}
+#| tbl-cap: 
+#| - "Table 8a: Summary information for final Google ARIMA Model"
+
+display(GT(_02.df_goog_summary))
+
+```
+
+
+#### Final model parameters
+
+```{python tab8b-goog final model params}
+#| tbl-cap: 
+#| - "Table 8b: Parameter information for final Google ARIMA Model"
+
+display(GT(_02.df_goog_params))
+
+```
+
+:::
 
 :::
 
