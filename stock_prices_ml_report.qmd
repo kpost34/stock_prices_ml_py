@@ -34,16 +34,17 @@ sys.path.append(str(code_dir))
 from _00_helper_fns import format_number_gt
 import _01_data_initial_clean_check_eda as _01
 import _02_prepare_fit_models as _02
-# import _03_model_forecast_diagnostics as _03
+import _03_model_forecast_diagnostics as _03
 
 ```
 
 
 ## Background
+The goal of this project was to predict January 2019 adjusted closing prices of four technology stocks--Apple (*aapl*), Microsoft (*msft*), Amazon (*amzn*), and Google (*goog*)--by fitting autoregressive integrated moving average (ARIMA) models to 2016-2018 data. The four stocks were selected because they represent quintessential 'big tech' companies, meaning their market dynamics should correlate with each other but given each company's products, services, and market shares, they should also exhibit individualized patterns. Data from 2016-2018 was used because the stock markets exhibited steady growth, and no major recessions or world events occurred.
 
-<!-- INSERT BACKGROUND INFO -->
 
-
+## Methods
+Exploratory data analysis was performed to understand the training data--2016-2018 stock prices (i.e., open, high, low, close, adjusted close) and trading volumes--as well as returns, risks, and bivariate correlations. Adjusted closing prices were transformed and assessed for stationarity, and differencing was applied if necessary. Initial ARIMA model parameters were set using partial and full autocorrelation plots. Model selection was performed through assessment of parameter significance, autocorrelation, heteroscedasticity, and normality of residuals. January 2019 adjusted closing prices were forecasted using selected ARIMA models and diagnostics were presented.
 
 
 ## Exploratory Data Analysis
@@ -108,6 +109,11 @@ display(gt_goog_summ_stats)
 
 :::
 
+Stock prices, on average, were greatest for Microsoft followed by Amazon, Google, and Apple, while stock price volatility was highest for Amazon with Microsoft a close second and Apple and Google exhibiting more stable prices from 2016-2018 (Tables 1a-d). Microsoft and Google had the fewest numbers shares traded daily, while Amazon and Apple exhibited the second greatest and greatest trading volumes, respectively.
+
+<br>
+
+Annual statistics on adjusted closing prices of each tech stock are summarized below.
 
 :::{.panel-tabset}
 ### Apple
@@ -155,9 +161,11 @@ display(GT(_01.df_goog_ac_yr))
 
 :::
 
+Adjusted closing prices of the four technology stocks, on average, increased from 2016 to 2018 (Tables 2a-d). Apple and Google stock prices grew more from 2016 to 2017, while Microsoft and Amazon grew more from 2017 to 2018. 
 
-The daily, adjusted closing stock prices were plotted for the four tech stocks--*aapl*, *msft*, 
-*amzn*, and *goog*--from 2016 through 2018.
+<br>
+
+The daily, adjusted closing stock prices were plotted for the four tech stocks from 2016 through 2018.
 
 ```{python fig1-adj closing prices over time}
 #| fig-cap: 
@@ -168,11 +176,11 @@ plt.close()
 
 ```
 
-The four stocks show a similar pattern in their adjusted closing prices over the time period observed (Fig. 1). There is steady growth in 2016 followed by greater growth the following year. In the first half of 2018, the growth continues but adjusted closing prices decline for all four stocks for the remainder of 2018.
+The four stocks exhibited a similar pattern in their adjusted closing prices over the time period observed (Fig. 1). There was steady growth in 2016, 2017, and the first half of 2018 followed by a decline in stock prices for the remainder of that year. 
 
 <br>
 
-The stock prices were log-transformed to reduce variances to more clearly show their growth patterns.
+The stock prices were log-transformed to reduce variances and more clearly show their growth patterns.
 
 ```{python fig2-log adj closing prices over time}
 #| fig-cap: 
@@ -183,11 +191,11 @@ plt.close()
 
 ```
 
-Similar to the untransformed adjusted closing prices (Fig. 1), the log-transformed values exhibit the same pattern with growth from 2016 to mid-2018 before a decline (Fig. 2).
+Similar to the untransformed adjusted closing prices (Fig. 1), the log-transformed values exhibited the same growth pattern from 2016 to mid-2018 before a decline (Fig. 2).
 
 <br>
 
-The trading volume was also plotted over this time period for the four technology stocks.
+The trading volumes were also plotted over this time period for the four technology stocks.
 
 ```{python fig3-volume over time}
 #| fig-cap: 
@@ -198,11 +206,11 @@ plt.close()
 
 ```
 
-In general, *amzn* and *aapl* had greater trading volumes than *goog* and *msft* from 2016-2018 (Fig. 3). All four stocks had their highest volumes in early 2016 and late 2018.
+In general, Amazon and Apple had greater trading volumes than Google and Microsoft from 2016-2018 (Fig. 3). All four stocks had their highest volumes in early 2016 and late 2018.
 
 <br>
 
-Distributions of data were visualized using boxplots. 
+Distributions of adjusted closing prices were visualized using boxplots. 
 
 ```{python fig4-boxplot adj closing prices}
 #| fig-cap: 
@@ -213,11 +221,11 @@ plt.close()
 
 ```
 
-*msft* has far greater median adjusted closing prices than the other three stocks, while *aapl* and *goog* have smaller inter-quartile ranges than *aapl* and *amzn* (Fig. 4). There are no outliers present for any tech stock.
+Microsoft had far greater median adjusted closing prices than the other three stocks, while Apple and Google had smaller inter-quartile ranges than Microsoft and Amazon (Fig. 4). There were no outliers present for any tech stock.
 
 <br>
 
-In addition to daily adjusted closing prices, the return, or daily percent change in these values, can be a helpful metric in understanding a stock. When combined with risk, or the standard deviation in returns, the relationship between these two metrics can be visualized. This is done for all four stocks over each year of data.
+In addition to daily adjusted closing prices, the return, or daily percent change in these values, can be a helpful metric in understanding a stock. When combined with risk, or the standard deviation in returns, the relationship between these two metrics can be visualized. This was calculated and visualized for all four stocks over each year of training data.
 
 ```{python fig5-return risk}
 #| fig-cap:
@@ -228,11 +236,11 @@ plt.close()
 
 ```
 
-Overall, return:risk were strong in 2017, subpar in 2016, and mixed in 2018 (Fig. 5). On average, *amzn* performed the strongest, while *goog* performed the weakest.
+Overall, return:risk were subpar in 2016, strong in 2017, and mixed in 2018 (Fig. 5). On average, Amazon performed the strongest, while Google performed the weakest.
 
 <br>
 
-Correlations of returns were calculated using Pearson correlations.
+Correlations of returns were calculated using Pearson correlations and visualized as a heatmap.
 
 ```{python fig6-return corr}
 #| fig-cap:
@@ -243,11 +251,11 @@ plt.close()
 
 ```
 
-All pairs of tech stocks exhibit moderate correlations (0.5 < *r* < 0.8) of returns from 2016-2018 (Fig. 6).
+All pairs of tech stocks exhibited moderate correlations (0.5 < *r* < 0.8) of returns from 2016-2018 (Fig. 6).
 
 
 ## Data Transformation and Stationarity
-The adjusted closing stock prices of all four technology stocks were (natural) log transformed to help stabilize their variances and improve normality of residuals. Following transformation, each stock was assessed for stationarity via Augmented Dickey-Fuller tests. 
+The adjusted closing stock prices of all four technology stocks were (natural) log transformed to help stabilize their variances and improve normality of residuals prior to model-fitting. Following transformations, each stock was assessed for stationarity via Augmented Dickey-Fuller tests. 
 
 ```{python tab3-ad fuller results}
 #| tbl-cap: 
@@ -257,7 +265,7 @@ display(GT(_02.df_adfuller_results))
 
 ```
 
-The test results indicate that the log-transformed adjusted closing prices for all four tech stocks are not stationary because no p-value < 0.05 (Table 3). Thus, first-order differencing was applied and a second set of Augmented Dickey-Fuller tests were re-run.
+The test results indicate that the log-transformed adjusted closing prices for all four tech stocks were not stationary because no p-value was less than 0.05 (Table 3). Thus, first-order differencing was applied and a second set of Augmented Dickey-Fuller tests were run.
 
 ```{python tab4-ad fuller results on diff data}
 #| tbl-cap:
@@ -267,7 +275,7 @@ display(GT(_02.df_diff_adfuller_results))
 
 ```
 
-All four stocks exhibited stationarity of their differenced log-transformed adjusted closing prices per the results of the Augmented Dickey-Fuller tests (Table 4).
+All four stocks exhibited stationarity of their differenced log-transformed adjusted closing prices per the results of the Augmented Dickey-Fuller tests (Table 4).Thus, these values were used in fitting ARIMA models.
 
 
 ## Identify Starting ARIMA Parameters
@@ -299,11 +307,12 @@ plt.close()
 
 :::
 
+
 The partial autocorrelation (Fig. 7a) and autocorrelation (Fig. 7b) plots indicate the following initial parameters: 
 
 <span style="color:gray;">Table 3: *p*, *d*, and *q* initial parameters for ARIMA models of the four tech stocks</span>
 
-stock|symbol | *p*| *d*| *q*
+stock|symbol | *p*|*d*|*q*
 -----|---|---|---|---:
 Apple|aapl|0|1|0
 Microsoft|msft|2|1|1
@@ -316,7 +325,7 @@ ARIMA models were run on each stock using the initial parameters. Parameter valu
 
 <span style="color:gray;">Table 4: *p*, *d*, and *q* parameters selected for ARIMA models of the four tech stocks</span>
 
-stock| symbol| *p*| *d*| *q*
+stock| symbol| *p*|*d*|*q*
 -----|---|---|---|---:
 Apple|aapl|0|1|1
 Microsoft|msft|2|1|1
@@ -442,8 +451,11 @@ plt.close()
 
 :::
 
+Heteroscedasticity was not an issue as residuals versus fitted values plots were symmetrical for all four stocks (Figs. 8a, 9a, 10a, and 11a). Note that although not shown well for Apple, Amazon, and Google, focusing on the 'cloud' of points revealed the symmetrical pattern in the data more clearly. Residuals for all four stocks (Figs. 8a, 9a, 10a, and 11a) also exhibited a normal distribution. The partial autocorrelation and autocorrelation plots of the ARIMA model residuals for all four technology stocks exhibited no major concerns of autocorrelation (Figs. 8b, 9b, 10b, and 11b).
 
-Following these results, the final models for each tech stock are as follows.
+<br>
+
+Following these results, the final models for each technology stock are as follows.
 
 ::: {.panel-tabset}
 ### Apple
@@ -555,21 +567,108 @@ display(GT(_02.df_goog_params))
 
 :::
 
+The very low AIC and BIC values and high log-likelhood values indicates strong model fits for all four stocks, while all four p-values for the Ljung-Box tests are greater than 0.05, showing no concerns for autocorrelation (Tables 5a, 6a, 7a, and 8a).
+
+The final ARIMA(0,1,1) model for Apple has a highly significant MA term with a large negative impact, which is indicative of a strong relationship between the current value and lagged error term, and a near-zero standard error of the variance, which suggests almost no variability in residual variance (Table 5b). This parameter information illustrates a tight fit between the model and training data. 
+
+The final ARIMA(2,1,1) model for Microsoft has highly significant AR (both) and MA terms (Table 6b). The former means that the influence of the previous two time steps backs on the current value are slightly negative, given the coefficients, and significant per the p-values. The significant MA term with a coefficient of -1 indicates a perfect negative association between the current value and lagged error term. Finally, the significant sigma illustrates nearly no variability in model residuals. Overall, this model fits the training data tightly.
+
+The final ARIMA(1,1,1) model for Amazon has a non-significant AR term and a significant MA term (Table 7b). The AR term was left in the final model because ARIMA(0,1,0) had a high degree of autocorrelation and ARIMA(0,1,1) had a non-significant MA term. Thus, inclusion of the non-significant AR term meant that a significant MA term was also included in ARIMA(1,1,1). The MA term has a coefficient of -1, indicating a perfect negative relationship between the current value and lagged error term. This model also contains a near-zero standard error of the variance. Overall, this model fits the training data well.
+
+Finally, the final ARIMA(0,1,1) model for Google has a significant MA term (Table 8b). This term has a coefficient of -1, indicative of a perfect negative relationship between the lagged error term and current value. The standard error of the residuals is also near-zero, suggesting nearly no variability in model residuals. Again, this model exhibits a tight fit to the training data.
+
+
 
 ## Model Forecasting
+The final ARIMA models selected for each technology stock using 2016-2018 data were used to predict the January 2019 adjusted closing prices. Since the ARIMA models in this project were fit to log-transformed adjusted closing prices with first-order differencing, the forecasted values were also in this form, which is not very informative. Thus, differencing was removed by starting with the last known log-adjusted closing price (from the training data) and applying the forecasted differenced values to it to create a month (21 values) of forecasted log-transformed adjusted closing prices. Next, log transformation was removed by exponentiating the log-transformed forecasted values. These steps allowed comparisons between actual and forecasted values.
+
+::: {.panel-tabset}
+### Apple
+
+```{python tab9a-aapl pred adj closing prices}
+#| tbl-cap: 
+#| - "Table 9a: Actual and forecasted adjusted closing prices (+/- 1 CI) of Apple stock for January 2019"
+
+display(GT(_03.df_aapl_future_values_rep))
+
+```
 
 
+### Microsoft
 
-End with Forecasted versus true values plot
+```{python tab9b-msft pred adj closing prices}
+#| tbl-cap: 
+#| - "Table 9b: Actual and forecasted adjusted closing prices (+/- 1 CI) of Microsoft stock for January 2019"
 
+display(GT(_03.df_msft_future_values_rep))
+
+```
+
+
+### Amazon
+
+```{python tab9c-amzn pred adj closing prices}
+#| tbl-cap: 
+#| - "Table 9c: Actual and forecasted adjusted closing prices (+/- 1 CI) of Amazon stock for January 2019"
+
+display(GT(_03.df_amzn_future_values_rep))
+
+```
+
+
+### Google
+
+```{python tab9d-goog pred adj closing prices}
+#| tbl-cap: 
+#| - "Table 9d: Actual and forecasted adjusted closing prices (+/- 1 CI) of Google stock for January 2019"
+
+display(GT(_03.df_goog_future_values_rep))
+
+```
+
+:::
+
+
+```{python fig12-pred adj closing prices}
+#| fig-cap: 
+#| - "Figure 12: Actual and forecasted adjusted closing prices of the four technology stocks in January 2019"
+
+display(_03.plot_forecast_ac)
+plt.close()
+
+```
+
+The tabular (Tables 9a-d) and graphical (Fig. 12) outputs show close relationships between the actual and predicted adjusted closing prices of all stocks but Amazon. The larger discrepancy between forecasted and actual values assocaited with this stock result from an ARIMA model that performed well on the training data (Table 7a) but did include a non-significant parameter (Table 7b).
 
 
 ## Model Diagnostics
 
+Model performance was assessed using mean absolute errors (MAEs) and root mean squared errors (RMSEs). MAEs are useful in understanding the typical size of errors without overly penalizing large deviations. Meanwhile, RMSEs account for large deviations more severely than MAEs. Both metrics measure model performance inversely, meaning that lower values indicate stronger performance.
+
+:::{.panel-tabset}
+### Mean absolute error
+
+```{python tab10a-mae}
+#| tbl-cap: 
+#| - "Table 10a: MAEs between actual and forecasted prices for each stock measured in absolute and relative terms"
+#| 
+display(GT(_03.df_mae_results_nm))
+plt.close()
+
+```
 
 
-## Conclusion/Interpretation
+### Root mean squared error
 
+```{python tab10b-rmse}
+#| tbl-cap: 
+#| - "Table 10b: RMSEs between actual and forecasted prices for each stock measured in absolute and relative terms"
 
+display(GT(_03.df_rmse_results_nm))
+plt.close()
 
+```
 
+:::
+
+The mean absolute errors, in absolute terms and as percentages of mean adjusted closing prices during the forecasted period, for Apple, Microsoft, Google, and Amazon would be considered low, low-moderate, moderate, and high, respectively (Table 10a). Meanwhile, the RMSEs for Microsoft and Google, Apple, and Amazon would be considered low, moderate, and high, respectively (Table 10b). Thus, Microsoft's ARIMA model performed the strongest with a low-moderate MAE and a low RMSE. Google had the second strongest model with MAE and RMSE values that were second when measured as percentages of mean actual adjusted closing prices. Apple was a close third as it had the lowest absolute MAE and second lowest RMSE. The ARIMA model for Amazon performed poorly. This was somewhat expected given the non-significant parameter and suggests that a more complex ARIMA model or different model type would better fit adjusted closing price data for this stock.
