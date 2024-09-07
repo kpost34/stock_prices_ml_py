@@ -80,8 +80,20 @@ df_aapl_test
 
 
 ### Combine actual and forecasted values
-df_aapl_future_values = pd.concat([df_aapl_forecast_values, df_aapl_test], axis=1).iloc[0:21,]
+#for plotting
+df_aapl_future_values = pd.concat([df_aapl_forecast_values, df_aapl_test], axis=1).iloc[0:21,].round(2)
 df_aapl_future_values
+
+#for report
+df_aapl_future_values_rep = df_aapl_future_values.iloc[0:21, [4, 0, 2, 3]].rename(
+  {'aapl_adj_close': 'adj_close',
+  'aapl_mean': 'forecasted',
+  'aapl_mean_ci_lower': 'forecasted_ci_lower',
+  'aapl_mean_ci_upper': 'forecasted_ci_upper'},
+  axis=1
+)
+df_aapl_future_values_rep = df_aapl_future_values_rep.reset_index(names='date')
+df_aapl_future_values_rep
 
 
 ### Plot forecasted vs true values
@@ -119,7 +131,7 @@ last_msft_log_value = np.log(df0['msft_adj_close'].iloc[-1])
 df_msft_log_forecast = df_forecast_msft_sum.cumsum() + last_msft_log_value
 
 #undo log transform
-df_msft_forecast_values = np.exp(df_msft_log_forecast) 
+df_msft_forecast_values = np.exp(df_msft_log_forecast)
 df_msft_forecast_values.rename(columns={col: f'msft_{col}' for col in df_msft_forecast_values}, 
                                inplace=True)
 
@@ -129,8 +141,20 @@ df_msft_test
 
 
 ### Combine actual and forecasted values
-df_msft_future_values = pd.concat([df_msft_forecast_values, df_msft_test], axis=1).iloc[0:21,]
+#for plotting
+df_msft_future_values = pd.concat([df_msft_forecast_values, df_msft_test], axis=1).iloc[0:21,].round(2)
 df_msft_future_values
+
+#for report
+df_msft_future_values_rep = df_msft_future_values.iloc[0:21, [4, 0, 2, 3]].rename(
+  {'msft_adj_close': 'adj_close',
+  'msft_mean': 'forecasted',
+  'msft_mean_ci_lower': 'forecasted_ci_lower',
+  'msft_mean_ci_upper': 'forecasted_ci_upper'},
+  axis=1
+)
+df_msft_future_values_rep = df_msft_future_values_rep.reset_index(names='date')
+df_msft_future_values_rep
 
 
 
@@ -150,7 +174,7 @@ last_amzn_log_value = np.log(df0['amzn_adj_close'].iloc[-1])
 df_amzn_log_forecast = df_forecast_amzn_sum.cumsum() + last_amzn_log_value
 
 #undo log transform
-df_amzn_forecast_values = np.exp(df_amzn_log_forecast) 
+df_amzn_forecast_values = np.exp(df_amzn_log_forecast)
 df_amzn_forecast_values.rename(columns={col: f'amzn_{col}' for col in df_amzn_forecast_values}, 
                                inplace=True)
 
@@ -160,8 +184,20 @@ df_amzn_test
 
 
 ### Combine actual and forecasted values
-df_amzn_future_values = pd.concat([df_amzn_forecast_values, df_amzn_test], axis=1).iloc[0:21,]
+#for plotting
+df_amzn_future_values = pd.concat([df_amzn_forecast_values, df_amzn_test], axis=1).iloc[0:21,].round(2)
 df_amzn_future_values
+
+#for report
+df_amzn_future_values_rep = df_amzn_future_values.iloc[0:21, [4, 0, 2, 3]].rename(
+  {'amzn_adj_close': 'adj_close',
+  'amzn_mean': 'forecasted',
+  'amzn_mean_ci_lower': 'forecasted_ci_lower',
+  'amzn_mean_ci_upper': 'forecasted_ci_upper'},
+  axis=1
+)
+df_amzn_future_values_rep = df_amzn_future_values_rep.reset_index(names='date')
+df_amzn_future_values_rep
 
 
 
@@ -181,7 +217,7 @@ last_goog_log_value = np.log(df0['goog_adj_close'].iloc[-1])
 df_goog_log_forecast = df_forecast_goog_sum.cumsum() + last_goog_log_value
 
 #undo log transform
-df_goog_forecast_values = np.exp(df_goog_log_forecast) 
+df_goog_forecast_values = np.exp(df_goog_log_forecast)
 df_goog_forecast_values.rename(columns={col: f'goog_{col}' for col in df_goog_forecast_values}, 
                                inplace=True)
 
@@ -191,8 +227,20 @@ df_goog_test
 
 
 ### Combine actual and forecasted values
-df_goog_future_values = pd.concat([df_goog_forecast_values, df_goog_test], axis=1).iloc[0:21,]
+#for plotting
+df_goog_future_values = pd.concat([df_goog_forecast_values, df_goog_test], axis=1).iloc[0:21,].round(2)
 df_goog_future_values
+
+#for report
+df_goog_future_values_rep = df_goog_future_values.iloc[0:21, [4, 0, 2, 3]].rename(
+  {'goog_adj_close': 'adj_close',
+  'goog_mean': 'forecasted',
+  'goog_mean_ci_lower': 'forecasted_ci_lower',
+  'goog_mean_ci_upper': 'forecasted_ci_upper'},
+  axis=1
+)
+df_goog_future_values_rep = df_goog_future_values_rep.reset_index(names='date')
+df_goog_future_values_rep
 
 
 
@@ -203,7 +251,7 @@ df_all_future_values = pd.concat([df_aapl_future_values, df_msft_future_values, 
 
 
 ### Plot
-fig, axes = plt.subplots(2, 2)
+fig, axes = plt.subplots(2, 2, figsize=(8,8))
 
 t_mean_pred = df_all_future_values.filter(regex='_mean$').columns.tolist()
 t_ci_u = df_all_future_values.filter(regex='_mean_ci_upper$').columns.tolist()
@@ -249,13 +297,15 @@ for i in range(0, 2):
 #add super-labels
 fig.supxlabel('Date')
 fig.supylabel('Adjusted closing price')
-fig.suptitle('Forecasted versus actual adjusted closing stock prices for four tech stocks \nin January 2019')
+# fig.suptitle('Forecasted versus actual adjusted closing stock prices for four tech stocks \nin January 2019')
 
 #add legend of just one set 
-axes.flatten()[-2].legend(loc='lower center', bbox_to_anchor=(1, -0.2), ncol=3)
+axes.flatten()[-2].legend(loc='lower center', bbox_to_anchor=(1, -0.3), ncol=3)
 
 #adjust margins
-plt.subplots_adjust(top=0.92, bottom=0.11)
+plt.subplots_adjust(top=0.92, bottom=0.15, wspace=0.4, hspace=0.4)
+
+plot_forecast_ac = plt.gcf()
 
 plt.show()
 plt.close()
@@ -263,9 +313,15 @@ plt.close()
 
 
 # Model Diagnostics=================================================================================
+## Create DF of stock names
+df_stock_nm = pd.DataFrame({'stock': ['Apple', 'Microsoft', 'Amazon', 'Google']})
+
+
 ## Mean absolute error (MAE)
 df_mae_results = pd.concat([calc_mae(df_all_future_values, stock) for stock in t_stock])
-df_mae_results
+df_mae_results_nm = pd.concat([df_stock_nm, df_mae_results.reset_index(names='symbol')],
+                               axis=1)
+df_mae_results_nm
 #MAE: provides a linear score that indicates how much, on average, the model's predictions deviate
   #from the actual values
 
@@ -275,7 +331,9 @@ df_mae_results
 
 ## Root mean squared error (RMSE)
 df_rmse_results = pd.concat([calc_rmse(df_all_future_values, stock) for stock in t_stock])
-df_rmse_results
+df_rmse_results_nm = pd.concat([df_stock_nm, df_rmse_results.reset_index(names='symbol')],
+                                axis=1)
+df_rmse_results_nm
 #RMSE: penalizes large errors more heavily than MAE; it's particularly useful when large errors
   #are undesirable (thus more sensitive to outliers)
 
