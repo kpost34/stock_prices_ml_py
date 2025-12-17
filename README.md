@@ -11,4 +11,4 @@ The idea for this project was inspired by a conversation with ChatGPT. The train
 #### **Project Creator: Keith Post**
 + [Github Profile](https://github.com/kpost34) 
 + [LinkedIN Profile](https://www.linkedin.com/in/keith-post/)
-+ [Email](mailto:keithhpost@gmail.com)
++ [Email](mailto:keithpost.kp@gmail.com)
